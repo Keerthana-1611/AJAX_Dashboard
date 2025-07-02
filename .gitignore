@@ -1,0 +1,13 @@
+Photos/ 
+Videos/
+docs/
+__pycache__/
+Ajax-Installer-Build/
+Backend-Builds/
+Frontend-Builds/
+build/
+Temp/
+backups/
+.venv/
+Blueprints/__pycache__
+DAQ/__pycache__

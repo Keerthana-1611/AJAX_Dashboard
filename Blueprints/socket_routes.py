@@ -2,7 +2,7 @@
 from flask import request, Blueprint
 from threading import Lock
 from modbus_handler import start_thread as plc_thread
-from modbus_handler import MODBUS_REGISTRY,read_by_names
+from modbus_handler import MODBUS_REGISTRY
 import random
 import sys
 import os

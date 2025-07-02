@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
 from db_handler import create_db_connection
-from modbus_handler import write_demo_value
 from main import is_pendrive_connected
 import os
 import json
@@ -19,11 +18,6 @@ frontend = Blueprint('frontend', __name__)
 @frontend.route('/',methods=['GET'])
 def home():
     return " Home Page"
-
-@frontend.route('/demo_write',methods=['GET'])
-def demo_write():
-    x = write_demo_value(20,28.21,1)
-    return {"read_value": x}
 
 # Gives the status of the licene key
 @frontend.route('/licence_key_connected',methods=['GET'])
