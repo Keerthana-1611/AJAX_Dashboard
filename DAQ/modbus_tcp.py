@@ -1,4 +1,5 @@
 from pymodbus.client.tcp import ModbusTcpClient
+from DAQ.Converstion import *
 
 class ModbusTCPReader:
     def __init__(self, host: str = '127.0.0.1', port: int = 502):
@@ -79,6 +80,86 @@ class ModbusTCPReader:
             return result.registers
         except Exception as e:
             raise RuntimeError(f"TCP Input Register Read Error: {e}")
+
+    def read_float_register(self, address: int, inverse: bool = False, unit: int = 1):
+        try:
+            result = self.client.read_holding_registers(address=address, count=2, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to read float value from holding registers at {address}")
+            converted_result = to_float32(result.registers,0,inverse)
+            return converted_result
+        except Exception as e:
+            raise RuntimeError(f"Serial Holding Register Read Error: {e}")
+    
+    def write_float_register(self, address: int, value: float, inverse: bool = False, unit: int = 1):
+        try:
+            converted_value = from_float32(value=value,inverse=inverse)
+            result = self.client.write_registers(address=address, values=converted_value, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to write float value to holding registers at {address}")
+            return True
+        except Exception as e:
+            raise RuntimeError(f"Serial Holding Register Multi Write Error: {e}")
+    
+    def read_U32_register(self, address: int, inverse: bool = False, unit: int = 1):
+        try:
+            result = self.client.read_holding_registers(address=address, count=2, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to read U32 value from holding registers at {address}")
+            converted_result = to_uint32(result.registers,0,inverse)
+            return converted_result
+        except Exception as e:
+            raise RuntimeError(f"Serial U32 Holding Register Read Error: {e}")
+    
+    def write_U32_register(self, address: int, value: int, inverse: bool = False, unit: int = 1):
+        try:
+            converted_value = from_uint32(value=value,inverse=inverse)
+            result = self.client.write_registers(address=address, values=converted_value, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to write U32 value to holding registers at {address}")
+            return True
+        except Exception as e:
+            raise RuntimeError(f"Serial U32 Holding Register Multi Write Error: {e}")
+    
+    def read_I32_register(self, address: int, inverse: bool = False, unit: int = 1):
+        try:
+            result = self.client.read_holding_registers(address=address, count=2, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to read I32 value from holding registers at {address}")
+            converted_result = to_int32(result.registers,0,inverse)
+            return converted_result
+        except Exception as e:
+            raise RuntimeError(f"Serial I32 Holding Register Read Error: {e}")
+    
+    def write_I32_register(self, address: int, value: int, inverse: bool = False, unit: int = 1):
+        try:
+            converted_value = from_int32(value=value,inverse=inverse)
+            result = self.client.write_registers(address=address, values=converted_value, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to write I32 value to holding registers at {address}")
+            return True
+        except Exception as e:
+            raise RuntimeError(f"Serial I32 Holding Register Multi Write Error: {e}")
+    
+    def read_double_register(self, address: int, inverse: bool = False, unit: int = 1):
+        try:
+            result = self.client.read_holding_registers(address=address, count=4, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to read double value from holding registers at {address}")
+            converted_result = to_double64(result.registers,0,inverse)
+            return converted_result
+        except Exception as e:
+            raise RuntimeError(f"Serial double Holding Register Read Error: {e}")
+    
+    def write_double_register(self, address: int, value: int, inverse: bool = False, unit: int = 1):
+        try:
+            converted_value = from_double64(value=value,inverse=inverse)
+            result = self.client.write_registers(address=address, values=converted_value, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to write double value to holding registers at {address}")
+            return True
+        except Exception as e:
+            raise RuntimeError(f"Serial double Holding Register Multi Write Error: {e}")
 
     def close(self):
         self.client.close()

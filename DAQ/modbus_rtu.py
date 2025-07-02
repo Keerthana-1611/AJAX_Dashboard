@@ -1,6 +1,7 @@
 from pymodbus.client.serial import ModbusSerialClient
 from pymodbus import FramerType
 from DAQ.Converstion import *
+
 class ModbusSerialReader:
     def __init__(self, port='COM0', baudrate='9600', stopbit='1', type='rtu', databit='8', parity="N",slave_id='1'):
         try:
@@ -13,10 +14,10 @@ class ModbusSerialReader:
                 timeout=1,
                 bytesize=int(databit)
             )
-            self.slave_id = slave_id
+            self.slave_id = int(slave_id)
             self.client.connect()
             # self.status = self.client.connected
-             # Verify device presence by reading 1 register from address 0
+            # Verify device presence by reading 1 register from address 0
             result = self.client.read_holding_registers(address=0, count=1, slave=self.slave_id)
             if result.isError():
                 self.client.close()
@@ -99,54 +100,85 @@ class ModbusSerialReader:
         except Exception as e:
             raise RuntimeError(f"Serial Input Register Read Error: {e}")
 
-    def write_float_to_registers(self, address: int, value: float, inverse: bool = False ,unit: int = 1):
+    def read_float_register(self, address: int, inverse: bool = False, unit: int = 1):
+        try:
+            result = self.client.read_holding_registers(address=address, count=2, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to read float value from holding registers at {address}")
+            converted_result = to_float32(result.registers,0,inverse)
+            return converted_result
+        except Exception as e:
+            raise RuntimeError(f"Serial Holding Register Read Error: {e}")
+    
+    def write_float_register(self, address: int, value: float, inverse: bool = False, unit: int = 1):
         try:
             converted_value = from_float32(value=value,inverse=inverse)
             result = self.client.write_registers(address=address, values=converted_value, slave=unit)
             if result.isError():
-                raise RuntimeError(f"Failed to write multiple holding registers at {address}")
+                raise RuntimeError(f"Failed to write float value to holding registers at {address}")
             return True
         except Exception as e:
             raise RuntimeError(f"Serial Holding Register Multi Write Error: {e}")
-
-    def read_float_from_registers(self, address: int, count: int = 2, inverse: bool = False,unit: int = 1):
+    
+    def read_U32_register(self, address: int, inverse: bool = False, unit: int = 1):
         try:
-            result = self.client.read_holding_registers(address=address, count=count, slave=unit)
-            converted_result = to_float32(result.registers,0,inverse)
+            result = self.client.read_holding_registers(address=address, count=2, slave=unit)
             if result.isError():
-                raise RuntimeError(f"Failed to read holding registers at {address}")
+                raise RuntimeError(f"Failed to read U32 value from holding registers at {address}")
+            converted_result = to_uint32(result.registers,0,inverse)
             return converted_result
         except Exception as e:
-            raise RuntimeError(f"Serial Holding Register Read Error: {e}")
-        
-    def read_mix_design(self, address: int = 37768, num_floats: int = 10, inverse: bool = False, unit: int = 1):
+            raise RuntimeError(f"Serial U32 Holding Register Read Error: {e}")
+    
+    def write_U32_register(self, address: int, value: int, inverse: bool = False, unit: int = 1):
         try:
-            registers_to_read = num_floats * 2
-            
-            result_registers = self.read_holding_registers(address=address, count=registers_to_read, unit=unit)
-            
-            mix_design_data = []
-            for i in range(num_floats):
-              
-                float_value = to_float32(result_registers, i * 2, inverse)
-                mix_design_data.append(float_value)
-            return mix_design_data
-        except Exception as e:
-            raise RuntimeError(f"Failed to read mix design from address {address}: {e}")
-
-    def write_mix_design(self, mix_design_data: list[float], address: int = 37768, inverse: bool = False, unit: int = 1):
-
-        try:
-            all_registers_to_write = []
-            for value in mix_design_data:
-                converted_registers = from_float32(value=value, inverse=inverse)
-                all_registers_to_write.extend(converted_registers)
-            
-            self.write_multiple_holding_registers(address=address, value=all_registers_to_write, unit=unit)
+            converted_value = from_uint32(value=value,inverse=inverse)
+            result = self.client.write_registers(address=address, values=converted_value, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to write U32 value to holding registers at {address}")
             return True
         except Exception as e:
-            raise RuntimeError(f"Failed to write mix design to address {address}: {e}")    
-            
+            raise RuntimeError(f"Serial U32 Holding Register Multi Write Error: {e}")
+    
+    def read_I32_register(self, address: int, inverse: bool = False, unit: int = 1):
+        try:
+            result = self.client.read_holding_registers(address=address, count=2, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to read I32 value from holding registers at {address}")
+            converted_result = to_int32(result.registers,0,inverse)
+            return converted_result
+        except Exception as e:
+            raise RuntimeError(f"Serial I32 Holding Register Read Error: {e}")
+    
+    def write_I32_register(self, address: int, value: int, inverse: bool = False, unit: int = 1):
+        try:
+            converted_value = from_int32(value=value,inverse=inverse)
+            result = self.client.write_registers(address=address, values=converted_value, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to write I32 value to holding registers at {address}")
+            return True
+        except Exception as e:
+            raise RuntimeError(f"Serial I32 Holding Register Multi Write Error: {e}")
+    
+    def read_double_register(self, address: int, inverse: bool = False, unit: int = 1):
+        try:
+            result = self.client.read_holding_registers(address=address, count=4, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to read double value from holding registers at {address}")
+            converted_result = to_double64(result.registers,0,inverse)
+            return converted_result
+        except Exception as e:
+            raise RuntimeError(f"Serial double Holding Register Read Error: {e}")
+    
+    def write_double_register(self, address: int, value: int, inverse: bool = False, unit: int = 1):
+        try:
+            converted_value = from_double64(value=value,inverse=inverse)
+            result = self.client.write_registers(address=address, values=converted_value, slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to write double value to holding registers at {address}")
+            return True
+        except Exception as e:
+            raise RuntimeError(f"Serial double Holding Register Multi Write Error: {e}")
+        
     def close(self):
         self.client.close()
-

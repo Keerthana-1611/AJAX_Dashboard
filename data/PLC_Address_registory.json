@@ -1,8 +1,242 @@
 {
-    "motor_start": {"type": "coils", "address": 0},
-    "valve_open": {"type": "coils", "address": 1},
-    "emergency_stop": {"type": "discrete_inputs", "address": 10},
-    "temperature_setpoint": {"type": "holding_registers", "address": 100},
-    "pressure_limit": {"type": "holding_registers", "address": 101},
-    "temperature_actual": {"type": "input_registers", "address": 200}
+    "motor_start": {
+        "register_type": "coil",
+        "address": 0,
+        "value_type" : "Bool",
+        "inverse" : "null"
+    },
+    "valve_open": {
+        "register_type": "coil",
+        "address": 1,
+        "value_type" : "Bool",
+        "inverse" : "null"
+    },
+    "emergency_stop": {
+        "register_type": "coil",
+        "address": 2,
+        "value_type" : "Bool",
+        "inverse" : "null"
+    },
+    "temperature_setpoint": {
+        "register_type": "holding_register",
+        "address": 0,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "pressure_limit": {
+        "register_type": "holding_register",
+        "address": 1,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "Lower Pressure": {
+        "register_type": "holding_register",
+        "address": 2,
+        "value_type" : "Float",
+        "inverse" : true
+    },
+    "Upper pressure": {
+        "register_type": "holding_register",
+        "address": 1,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "temperature_actual": {
+        "register_type": "holding_register",
+        "address": 2,
+        "value_type" : "Float",
+        "inverse" : true
+    },
+    "under Lower": {
+        "register_type": "holding_register",
+        "address": 1,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "Under Upper": {
+        "register_type": "holding_register",
+        "address": 2,
+        "value_type" : "Float",
+        "inverse" : true
+    },
+    "motor_1start": {
+        "register_type": "coil",
+        "address": 0,
+        "value_type" : "Bool",
+        "inverse" : "null"
+    },
+    "valve_2open": {
+        "register_type": "coil",
+        "address": 1,
+        "value_type" : "Bool",
+        "inverse" : "null"
+    },
+    "emergency_3stop": {
+        "register_type": "coil",
+        "address": 2,
+        "value_type" : "Bool",
+        "inverse" : "null"
+    },
+    "temperature_1setpoint": {
+        "register_type": "holding_register",
+        "address": 0,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "pressure_2limit": {
+        "register_type": "holding_register",
+        "address": 1,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "Lower 3Pressure": {
+        "register_type": "holding_register",
+        "address": 2,
+        "value_type" : "Float",
+        "inverse" : true
+    },
+    "Upper 12pressure": {
+        "register_type": "holding_register",
+        "address": 1,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "temperature_231actual": {
+        "register_type": "holding_register",
+        "address": 2,
+        "value_type" : "Float",
+        "inverse" : true
+    },
+    "under 12Lower": {
+        "register_type": "holding_register",
+        "address": 1,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "valv1_open": {
+        "register_type": "coil",
+        "address": 1,
+        "value_type" : "Bool",
+        "inverse" : "null"
+    },
+    "emerg1ency_stop": {
+        "register_type": "coil",
+        "address": 2,
+        "value_type" : "Bool",
+        "inverse" : "null"
+    },
+    "tempe1rature_setpoint": {
+        "register_type": "holding_register",
+        "address": 0,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "pressu1re_limit": {
+        "register_type": "holding_register",
+        "address": 1,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "Lowe1r Pressure": {
+        "register_type": "holding_register",
+        "address": 2,
+        "value_type" : "Float",
+        "inverse" : true
+    },
+    "Upper 1pressure": {
+        "register_type": "holding_register",
+        "address": 1,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "temper1ature_actual": {
+        "register_type": "holding_register",
+        "address": 2,
+        "value_type" : "Float",
+        "inverse" : true
+    },
+    "under L1ower": {
+        "register_type": "holding_register",
+        "address": 1,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "Under Up1per": {
+        "register_type": "holding_register",
+        "address": 2,
+        "value_type" : "Float",
+        "inverse" : true
+    },
+    "motor_1st1art": {
+        "register_type": "coil",
+        "address": 0,
+        "value_type" : "Bool",
+        "inverse" : "null"
+    },
+    "valve_21open": {
+        "register_type": "coil",
+        "address": 1,
+        "value_type" : "Bool",
+        "inverse" : "null"
+    },
+    "emergency_3s1top": {
+        "register_type": "coil",
+        "address": 2,
+        "value_type" : "Bool",
+        "inverse" : "null"
+    },
+    "temperature11_1setpoint": {
+        "register_type": "holding_register",
+        "address": 0,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "pressure_2limi1t": {
+        "register_type": "holding_register",
+        "address": 1,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "Lower 3Pressu1re": {
+        "register_type": "holding_register",
+        "address": 2,
+        "value_type" : "Float",
+        "inverse" : true
+    },
+    "Upper 12pres1sure": {
+        "register_type": "holding_register",
+        "address": 1,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "temperature_231ac1tual": {
+        "register_type": "holding_register",
+        "address": 2,
+        "value_type" : "Float",
+        "inverse" : true
+    },
+    "under 12L2ower": {
+        "register_type": "holding_register",
+        "address": 1,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "Lowaer 3Pressu1re": {
+        "register_type": "holding_register",
+        "address": 2,
+        "value_type" : "Float",
+        "inverse" : true
+    },
+    "Uppser 12pres1sure": {
+        "register_type": "holding_register",
+        "address": 1,
+        "value_type" : "U16",
+        "inverse" : false
+    },
+    "tempserature_231ac1tual": {
+        "register_type": "holding_register",
+        "address": 2,
+        "value_type" : "Float",
+        "inverse" : true
+    }
 }
