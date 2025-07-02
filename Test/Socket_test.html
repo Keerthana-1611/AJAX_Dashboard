@@ -1,0 +1,31 @@
+<!-- test_client.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket.IO Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Socket.IO Random Value Test</h1>
+    <h2 id="random-value">Waiting for value...</h2>
+
+    <script>
+        // Connect to the correct namespace
+        const socket = io('http://127.0.0.1:5000');
+
+        socket.on('connect', () => {
+            console.log("✅ Connected to /random_socket");
+        });
+
+        socket.on('disconnect', () => {
+            console.log("❌ Disconnected");
+        });
+
+        // Listen for emitted random values and update the DOM
+        socket.on('random_value', (data) => {
+            console.log("🎲 Random Value Received:", data.value);
+            document.getElementById('random-value').textContent = `Random Value: ${data.value}`;
+        });
+    </script>
+</body>
+</html>

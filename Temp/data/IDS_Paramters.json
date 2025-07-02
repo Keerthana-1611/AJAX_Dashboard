@@ -1,0 +1,30 @@
+{
+    "plant_manufacture": {
+        "Selected": "Ajax",
+        "values":["Ajax","venus"]
+    },
+    "product_delay": 10,
+    "scale_stabilization_time": 2,
+    "mixer_operation":{
+        "Selected": "Auto",
+        "values":["Auto","Manual"]
+    },
+    "mixer_sequence": {
+        "Selected": "Sequence",
+        "values":["Sequence","Parallel"]
+    },
+    "plant_hooter_time": 0.00,
+    "belt_sequence":{
+        "Selected": "Sequence",
+        "values":["Sequence","Parallel"]
+    },
+    "admixture_discharge":{
+        "Selected": "Mixer",
+        "values":["Mixer","No Mixer"]
+    },
+    "mixer_gate_control": {
+        "Selected": "Mixer Motor",
+        "values":["Mixer Motor"]
+    }
+}
+  

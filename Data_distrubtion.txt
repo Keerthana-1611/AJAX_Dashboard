@@ -1,0 +1,122 @@
+
+Json files:
+    Plant Details
+    IDS Parameters
+    Operator Parameters
+
+Database name Ajax:
+    Product Settings
+        Tabel Name :  Product Settings
+            ID                int auto increment Primary Key
+            Scales            varchar
+            Dead Weight       float
+            Fill time         float 
+            Discharge time    float 
+            Loading Sequence  float 
+            Jog Close Time    float
+        Table Name : Product Container Settings
+            ID                   int auto increment Primary Key
+            Product Code         varchar
+            Defination           varchar
+            Large Jog Weight     float   
+            Large Jog Time       float
+            Small Jog Time       float
+            Weighting Mode       float
+
+    Operator Parameters
+        Table Name : Operator Parameters
+            ID                   int auto increment Primary Key
+            Defination           varchar
+            Moisture             float
+            Tolerance            float
+            Flight Weight        float
+            Recalculate          bool
+
+    Login
+        Table Name : Users
+            ID                   int auto increment Primary Key
+            Username             varchar
+            Password             varchar
+
+    Mix Design
+        Table Name : Mix Design
+            ID                   int auto increment Primary Key
+            MixdesignName        varchar
+            Grade                varchar    
+            MixingTime           float
+            20MM                 float
+            10MM                 float
+            R Sand               float
+            C Sand               float
+            MT                   float
+            CMT1                 float
+            CMT2                 float
+            WTR1                 float
+            ADM1                 float
+            ADM2                 float
+
+    Sales Order
+        Table Name : Sales Order
+            SalesOrderID                   int auto increment Primary Key
+            Mix Name                       varchar
+            Client_ID                      int Forgin Key from client_details Tabel
+            DateTime                      DateTime
+            Ordered Qty                    float
+            Load Qty                       float
+            Produced Qty                   float
+            MixingTime                     float
+
+        Table Name : Batches
+            Batch ID                       int auto increment Primary Key
+            SalesOrderID                   Forgin Key from Sales Order table
+            Batch number                   int
+            DateTime                      DateTime
+            20MM                           float
+            10MM                           float
+            R Sand                         float
+            C Sand                         float
+            MT                             float    
+            CMT1                           float
+            CMT2                           float
+            WTR1                           float
+            ADM1                           float
+            ADM2                           float
+            Quantity                       float
+    
+    Transport logs
+        Tabel Name : Transport_log
+            Transport_ID                   int Primary key AUTO_INCREMENT
+            SalesOrderID                   int Forgin Key from Sales_order tabel
+            Batch_ID                       int Forgin key from Batches table
+            Batch_Series_ID                int from Batches tabel
+            Truck_Number                   varchar(50)
+            Driver_Name                    varchar(100)
+            Transport_DateTime             datetime
+            Delivered_Qty                  float
+
+    Clients
+        Tabel Name : client_details
+            Client_ID                     int Primary key AUTO_INCREMENT
+            Client_Name                   varchar(100)
+            Site                          varchar(100)
+            Address                       varchar(100)
+
+
+    Vehicle Details
+        Tabel Name : vehicle_details
+            Vehicle_ID                    int Primary key AUTO_INCREMENT
+            Client_ID                     int Forgin key
+            Vehicle Type                  varchar(100)
+            Vehicle Quantity              varchar(100)
+            Vehicle Number                varchar(100)
+
+    Alarm History
+        Table Name : alarm_history
+            ID                            int Primary Key AUTO_INCREMENT
+            User                          varchar(255)
+            Alarm_Type                    varchar(50)
+            Message                       varchar(255)
+            Event_datatime                datetime
+            Acknowledge_datetime          datetime
+            Accept_datetime               datetime
+            Normalise_datetime            datetime

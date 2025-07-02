@@ -1,0 +1,16 @@
+{
+  "loadcell_register_map": {
+    "cell1": 0,
+    "cell2": 1,
+    "cell3": 2
+  },
+  "plc_connection_information": {
+    "port": "COM2",
+    "baudrate": "9600",
+    "stopbit": "1",
+    "databit": "8",
+    "parity": "N",
+    "type": "ascii",
+    "slave_id": 1
+  }
+}

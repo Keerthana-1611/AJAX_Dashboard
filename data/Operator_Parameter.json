@@ -1,0 +1,13 @@
+{
+    "mixer_capacity": 10.0,
+    "half_discharge_time": 1.0,
+    "batch_correction": true,
+    "vehicle_capacity": 5000.0,
+    "full_discharge_time": 8.0,
+    "bin_correction": true,
+    "batch_report": true,
+    "half_discharge_time_g2": 6.0,
+    "online_printing": false,
+    "full_discharge_time_g2": 9.1,
+    "mixing_time" : 2.0
+}

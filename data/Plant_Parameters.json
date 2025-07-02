@@ -1,0 +1,78 @@
+{
+    "plant_model": {
+        "Selected": "CRB 30",
+        "values": [
+            "CRB 120",
+            "CRB 30"
+        ]
+    },
+    "mixer_type": {
+        "Selected": "Twin Shaft",
+        "values": [
+            "Twin Shaft",
+            "Planatory"
+        ]
+    },
+    "show_auto_manual": {
+        "Selected": "Yes",
+        "values": [
+            "Yes",
+            "No"
+        ]
+    },
+    "max_delta_delay": 100.0,
+    "max_mixer_capacity": 1500.0,
+    "min_mixer_capacity": 500.0,
+    "close_to_half_open": 50.0,
+    "mixer_stop_delay": 5.0,
+    "mixer_start_delay": 3.0,
+    "close_to_half_open_g2": 60.0,
+    "average_vibrator_on_time": 4.0,
+    "average_vibrator_off_time": 2.0,
+    "water_weighing": {
+        "Selected": "Weighed",
+        "values": [
+            "Weighed"
+        ]
+    },
+    "cement_vibrator_on_time": 6.0,
+    "cement_vibrator_off_time": 3.0,
+    "admixture_weighing": {
+        "Selected": "Weighed",
+        "values": [
+            "Weighed",
+            "Auto"
+        ]
+    },
+    "cement1_dosing_delay": 7.0,
+    "cement2_dosing_delay": 8.0,
+    "transfer_type": {
+        "Selected": "Transfer Skip",
+        "values": [
+            "Transfer Skip",
+            "Belt"
+        ]
+    },
+    "weigher": {
+        "Selected": "Transfer Bins",
+        "values": [
+            "Inline Bins",
+            "Transfer Bins"
+        ]
+    },
+    "product_delay": 10.0,
+    "scale_stabilization": 5.0,
+    "skip_discharge_time": 10.0,
+    "down_to_waiting_time": 2.0,
+    "skip_start_delay": 4.0,
+    "top_to_bottom_time": 8.0,
+    "waiting_to_top_time": 3.0,
+    "skip_slak_time": 1.0,
+    "skip_waiting": {
+        "Selected": "No",
+        "values": [
+            "Yes",
+            "No"
+        ]
+    }
+}

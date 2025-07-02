@@ -1,0 +1,8 @@
+{
+    "motor_start": {"type": "coils", "address": 0},
+    "valve_open": {"type": "coils", "address": 1},
+    "emergency_stop": {"type": "discrete_inputs", "address": 10},
+    "temperature_setpoint": {"type": "holding_registers", "address": 100},
+    "pressure_limit": {"type": "holding_registers", "address": 101},
+    "temperature_actual": {"type": "input_registers", "address": 200}
+}
