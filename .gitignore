@@ -9,5 +9,5 @@ build/
 Temp/
 backups/
 .venv/
-Blueprints/__pycache__
-DAQ/__pycache__
+Blueprints/__pycache__/
+DAQ/__pycache__/

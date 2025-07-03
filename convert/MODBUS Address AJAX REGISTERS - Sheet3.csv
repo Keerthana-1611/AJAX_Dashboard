@@ -1,0 +1,240 @@
+Mode_AGG BIN 1,holding_register,37768,U16,FALSE
+Mode_AGG BIN 2,holding_register,37769,U16,FALSE
+Mode_AGG BIN 3,holding_register,37770,U16,FALSE
+Mode_AGG BIN 4,holding_register,37771,U16,FALSE
+Mode_AGG BIN 5,holding_register,37772,U16,FALSE
+Mode_AGG BIN 6,holding_register,37773,U16,FALSE
+Mode_CEM BIN 1,holding_register,37774,U16,FALSE
+Mode_CEM BIN 2,holding_register,37775,U16,FALSE
+Mode_CEM BIN 3,holding_register,37776,U16,FALSE
+Mode_CEM BIN 4,holding_register,37777,U16,FALSE
+Mode_ADMIX 1,holding_register,37778,U16,FALSE
+Mode_ADMIX 2,holding_register,37779,U16,FALSE
+Mode_WATER 1,holding_register,37780,U16,FALSE
+Mode_WATER 2,holding_register,37781,U16,FALSE
+Mean_Correction,holding_register,37782,I32,FALSE
+No_Bin_AGG BIN 1,holding_register,37783,U16,FALSE
+No_Bin_CEM BIN 1,holding_register,37789,U16,FALSE
+No_Bin_ADMIX 1,holding_register,37793,U16,FALSE
+No_Bin_WATER 1,holding_register,37795,U16,FALSE
+Order_Bin_AGG BIN 1,holding_register,37797,U16,FALSE
+Order_Bin_AGG BIN 2,holding_register,37798,U16,FALSE
+Order_Bin_AGG BIN 3,holding_register,37799,U16,FALSE
+Order_Bin_AGG BIN 4,holding_register,37800,U16,FALSE
+Order_Bin_AGG BIN 5,holding_register,37801,U16,FALSE
+Order_Bin_AGG BIN 6,holding_register,37802,U16,FALSE
+Order_Bin_CEM BIN 1,holding_register,37803,U16,FALSE
+Order_Bin_CEM BIN 2,holding_register,37804,U16,FALSE
+Order_Bin_CEM BIN 3,holding_register,37805,U16,FALSE
+Order_Bin_CEM BIN 4,holding_register,37806,U16,FALSE
+Order_Bin_ADMIX 1,holding_register,37807,U16,FALSE
+Order_Bin_ADMIX 2,holding_register,37808,U16,FALSE
+Order_Bin_WATER 1,holding_register,37809,U16,FALSE
+Order_Bin_WATER 2,holding_register,37810,U16,FALSE
+WATER MAX OFFSET,holding_register,37994,U16,FALSE
+WATER MIN OFFSET ,holding_register,37996,U16,FALSE
+Dead_Weight_AGGREGATE,holding_register,37998,U16,FALSE
+Dead_Weight_CEMENT,holding_register,38000,U16,FALSE
+Dead_Weight_WATER,holding_register,38002,U16,FALSE
+Dead_Weight_ADMIXTURES,holding_register,38004,U16,FALSE
+Filling_Time_AGGREGATE,holding_register,38006,U16,FALSE
+Filling_Time_CEMENT,holding_register,38007,U16,FALSE
+Filling_Time_WATER,holding_register,38008,U16,FALSE
+Filling_Time_ADMIXTURES,holding_register,38009,U16,FALSE
+Discharge_Time_AGGREGATE,holding_register,38010,U16,FALSE
+Discharge_Time_CEMENT,holding_register,38011,U16,FALSE
+Discharge_Time_WATER,holding_register,38012,U16,FALSE
+Discharge_Time_ADMIXTURES,holding_register,38013,U16,FALSE
+Loading_Time_AGGREGATE,holding_register,38014,U16,FALSE
+Loading_Time_CEMENT,holding_register,38015,U16,FALSE
+Loading_Time_WATER,holding_register,38016,U16,FALSE
+Loading_Time_ADMIXTURES,holding_register,38017,U16,FALSE
+AGG PRE RUN TIME,holding_register,37811,I32,FALSE
+AGG VIB ON TIME,holding_register,37812,I32,FALSE
+AGG VIB OFF TIME,holding_register,37813,I32,FALSE
+PRODUCT DELAY,holding_register,37814,I32,FALSE
+CEM VIB ON TIME,holding_register,37815,I32,FALSE
+CEM VIB OFF TIME,holding_register,37816,I32,FALSE
+STABILIZATION TIME,holding_register,37994,I32,FALSE
+LJ_Weight_AGG BIN 1,holding_register,6846,Float,FALSE
+LJ_Weight_AGG BIN 2,holding_register,6854,Float,FALSE
+LJ_Weight_AGG BIN 3,holding_register,6862,Float,FALSE
+LJ_Weight_AGG BIN 4,holding_register,6870,Float,FALSE
+LJ_Weight_AGG BIN 5,holding_register,6878,Float,FALSE
+LJ_Weight_AGG BIN 6,holding_register,6886,Float,FALSE
+LJ_Weight_CEM BIN 1,holding_register,6892,Float,FALSE
+LJ_Weight_CEM BIN 2,holding_register,6890,Float,FALSE
+LJ_Weight_CEM BIN 3,holding_register,6898,Float,FALSE
+LJ_Weight_CEM BIN 4,holding_register,6906,Float,FALSE
+LJ_Weight_ADMIX 1,holding_register,37838,Float,FALSE
+LJ_Weight_ADMIX 2,holding_register,37840,Float,FALSE
+LJ_Weight_WATER 1,holding_register,6914,Float,FALSE
+LJ_Weight_WATER 2,holding_register,6920,Float,FALSE
+LJ_Time_AGG BIN 1,holding_register,6850,U32,FALSE
+LJ_Time_AGG BIN 2,holding_register,6858,U32,FALSE
+LJ_Time_AGG BIN 3,holding_register,6866,U32,FALSE
+LJ_Time_AGG BIN 4,holding_register,6874,U32,FALSE
+LJ_Time_AGG BIN 5,holding_register,6882,U32,FALSE
+LJ_Time_AGG BIN 6,holding_register,6890,U32,FALSE
+LJ_Time_CEM BIN 1,holding_register,6886,U32,FALSE
+LJ_Time_CEM BIN 2,holding_register,6894,U32,FALSE
+LJ_Time_CEM BIN 3,holding_register,6902,U32,FALSE
+LJ_Time_CEM BIN 4,holding_register,6910,U32,FALSE
+LJ_Time_ADMIX 1,holding_register,37856,U32,FALSE
+LJ_Time_ADMIX 2,holding_register,37857,U32,FALSE
+LJ_Time_WATER 1,holding_register,6918,U32,FALSE
+LJ_Time_WATER 2,holding_register,6924,U32,FALSE
+SJ_Weight_AGG BIN 1,holding_register,6848,U16,FALSE
+SJ_Weight_AGG BIN 2,holding_register,6856,Float,FALSE
+SJ_Weight_AGG BIN 3,holding_register,6864,Float,FALSE
+SJ_Weight_AGG BIN 4,holding_register,6782,Float,FALSE
+SJ_Weight_AGG BIN 5,holding_register,6880,Float,FALSE
+SJ_Weight_AGG BIN 6,holding_register,6888,Float,FALSE
+SJ_Weight_CEM BIN 1,holding_register,6894,Float,FALSE
+SJ_Weight_CEM BIN 2,holding_register,6892,Float,FALSE
+SJ_Weight_CEM BIN 3,holding_register,6900,Float,FALSE
+SJ_Weight_CEM BIN 4,holding_register,6908,Float,FALSE
+SJ_Weight_ADMIX 1,holding_register,37880,Float,FALSE
+SJ_Weight_ADMIX 2,holding_register,37882,Float,FALSE
+SJ_Weight_WATER 1,holding_register,6916,Float,FALSE
+SJ_Weight_WATER 2,holding_register,6922,Float,FALSE
+SL_Time_AGG BIN 1,holding_register,6852,U32,FALSE
+SL_Time_AGG BIN 2,holding_register,6860,U32,FALSE
+SL_Time_AGG BIN 3,holding_register,6868,U32,FALSE
+SL_Time_AGG BIN 4,holding_register,6876,U32,FALSE
+SL_Time_AGG BIN 5,holding_register,6884,U32,FALSE
+SL_Time_AGG BIN 6,holding_register,6892,U32,FALSE
+SL_Time_CEM BIN 1,holding_register,6888,U32,FALSE
+SL_Time_CEM BIN 2,holding_register,6896,U32,FALSE
+SL_Time_CEM BIN 3,holding_register,6904,U32,FALSE
+SL_Time_CEM BIN 4,holding_register,6912,U32,FALSE
+SL_Time_ADMIX 1,holding_register,37898,U32,FALSE
+SL_Time_ADMIX 2,holding_register,37899,U32,FALSE
+SL_Time_WATER 1,holding_register,6920,U32,FALSE
+SL_Time_WATER 2,holding_register,6926,U32,FALSE
+Tolerance_AGG BIN 1,holding_register,37902,Float,FALSE
+Tolerance_AGG BIN 2,holding_register,37904,Float,FALSE
+Tolerance_AGG BIN 3,holding_register,37906,Float,FALSE
+Tolerance_AGG BIN 4,holding_register,37908,Float,FALSE
+Tolerance_AGG BIN 5,holding_register,37910,Float,FALSE
+Tolerance_AGG BIN 6,holding_register,37912,Float,FALSE
+Tolerance_CEM BIN 1,holding_register,37914,Float,FALSE
+Tolerance_CEM BIN 2,holding_register,37916,Float,FALSE
+Tolerance_CEM BIN 3,holding_register,37918,Float,FALSE
+Tolerance_CEM BIN 4,holding_register,37920,Float,FALSE
+Tolerance_ADMIX 1,holding_register,37922,Float,FALSE
+Tolerance_ADMIX 2,holding_register,37924,Float,FALSE
+Tolerance_WATER 1,holding_register,37926,Float,FALSE
+Tolerance_WATER 2,holding_register,37928,Float,FALSE
+FW_AGG BIN 1,holding_register,37930,Float,FALSE
+FW_AGG BIN 2,holding_register,37932,Float,FALSE
+FW_AGG BIN 3,holding_register,37934,Float,FALSE
+FW_AGG BIN 4,holding_register,37936,Float,FALSE
+FW_AGG BIN 5,holding_register,37938,Float,FALSE
+FW_AGG BIN 6,holding_register,37940,Float,FALSE
+FW_CEM BIN 1,holding_register,37942,Float,FALSE
+FW_CEM BIN 2,holding_register,37944,Float,FALSE
+FW_CEM BIN 3,holding_register,37946,Float,FALSE
+FW_CEM BIN 4,holding_register,37948,Float,FALSE
+FW_ADMIX 1,holding_register,37950,Float,FALSE
+FW_ADMIX 2,holding_register,37952,Float,FALSE
+FW_WATER 1,holding_register,37954,Float,FALSE
+FW_WATER 2,holding_register,37956,Float,FALSE
+HOURS,holding_register,37906,U32,FALSE
+MINS,holding_register,37908,U32,FALSE
+SECS,holding_register,37910,U32,FALSE
+MIXER CAPACITY ,holding_register,37912,Float,FALSE
+MIXING TIME,holding_register,37914,I32,FALSE
+FULL DIS. TIME,holding_register,37915,I32,FALSE
+HALF DIS. TIME,holding_register,37916,I32,FALSE
+VECHILE CAPACITY,holding_register,37918,Float,FALSE
+GREASE PUMP ON TIME,holding_register,37920,I32,FALSE
+GREASE PUMP OFF TIME,holding_register,37921,I32,FALSE
+MS_AGG 1,holding_register,37922,Float,FALSE
+MS_AGG2,holding_register,37924,Float,FALSE
+MS_AGG3,holding_register,37926,Float,FALSE
+MS_AGG4,holding_register,37928,Float,FALSE
+MS_AGG5,holding_register,37930,Float,FALSE
+MS_AGG6,holding_register,37932,Float,FALSE
+MIXER MINIMUM CAPACITY ,holding_register,37934,Float,FALSE
+MIXER MAX CAPACITY,holding_register,37936,Float,FALSE
+MIXER delta on time,holding_register,37938,I32,FALSE
+MIXER GATE CLOSE FAULT,holding_register,37939,I32,FALSE
+CLOSE TO HALF OPEN TIME,holding_register,37940,I32,FALSE
+MIXER GATE OPEN FAULT,holding_register,38293,,FALSE
+BELT TRANSFER TIME,holding_register,37941,I32,FALSE
+MD_AGG BIN 1,holding_register,38768,Float,FALSE
+MD_AGG BIN 2,holding_register,38770,Float,FALSE
+MD_AGG BIN 3,holding_register,38772,Float,FALSE
+MD_AGG BIN 4,holding_register,38774,Float,FALSE
+MD_AGG BIN 5,holding_register,38776,Float,FALSE
+MD_AGG BIN 6,holding_register,38778,Float,FALSE
+MD_CEM BIN 1,holding_register,38780,Float,FALSE
+MD_CEM BIN 2,holding_register,38782,Float,FALSE
+MD_CEM BIN 3,holding_register,38784,Float,FALSE
+MD_CEM BIN 4,holding_register,38786,Float,FALSE
+MD_ADMIX 1,holding_register,38788,Float,FALSE
+MD_ADMIX 2,holding_register,38790,Float,FALSE
+MD_WATER 1,holding_register,38792,Float,FALSE
+MD_WATER 2,holding_register,38794,Float,FALSE
+MODE ,coil,47534,Bool,NULL
+Water_WEIGHING,coil,47541,Bool,NULL
+Water_PULSING,coil,47542,Bool,NULL
+Water_IN CMT,coil,47543,Bool,NULL
+WT_INLINER,coil,47538,Bool,NULL
+WT_STAR BIN,coil,47539,Bool,NULL
+WT_SQUARE,coil,47540,Bool,NULL
+WT_WEIGHING,coil,47544,Bool,NULL
+WT_PULSING,coil,47545,Bool,NULL
+WT_TIMING,coil,47546,Bool,NULL
+OP_surface ,coil,47536,Bool,NULL
+OP_absorption,coil,47537,Bool,NULL
+Alarm_TERMINATE ,coil,2418,Bool,NULL
+Alarm_ACCEPT,coil,2419,Bool,NULL
+AGGREGATE CALIBRATION FAULT,coil,2848,Bool,NULL
+CEMENT CALIBRATION FAULT,coil,2849,Bool,NULL
+WATER CALIBRATION FAULT,coil,2850,Bool,NULL
+ADMIXTURE CALIBRATION FAULT,coil,2851,Bool,NULL
+AGGREGATE FILLING FAULT,coil,2852,Bool,NULL
+CEMENT FILLING FAULT,coil,2853,Bool,NULL
+WATER FILLING FAULT,coil,2854,Bool,NULL
+ADMIXTURE FILLING FAULT,coil,2855,Bool,NULL
+AGGREGATE DISCHARGE FAULT,coil,2856,Bool,NULL
+CEMENT DISCHARGE FAULT,coil,2857,Bool,NULL
+WATER DISCHARGE FAULT,coil,2858,Bool,NULL
+ADMIXTURE DISCHARGE FAULT,coil,2859,Bool,NULL
+AGGREGATE DEAD WEIGHT FAULT,coil,2860,Bool,NULL
+CEMENT DEAD WEIGHT FAULT,coil,2861,Bool,NULL
+WATER DEAD WEIGHT FAULT,coil,2862,Bool,NULL
+ADMIXTURE DEAD WEIGHT FAULT,coil,2863,Bool,NULL
+AGGREGATE BIN-1 TOLERANCE FAULT-- GT,coil,2864,Bool,NULL
+AGGREGATE BIN-1 TOLERANCE FAULT-- LT,coil,2865,Bool,NULL
+AGGREGATE BIN-2 TOLERANCE FAULT-- GT,coil,2866,Bool,NULL
+AGGREGATE BIN-2 TOLERANCE FAULT-- LT,coil,2867,Bool,NULL
+AGGREGATE BIN-3 TOLERANCE FAULT-- GT,coil,2868,Bool,NULL
+AGGREGATE BIN-3 TOLERANCE FAULT-- LT,coil,2869,Bool,NULL
+AGGREGATE BIN-4 TOLERANCE FAULT-- GT,coil,2870,Bool,NULL
+AGGREGATE BIN-4 TOLERANCE FAULT-- LT,coil,2871,Bool,NULL
+AGGREGATE BIN-5 TOLERANCE FAULT-- GT,coil,2872,Bool,NULL
+AGGREGATE BIN-5 TOLERANCE FAULT-- LT,coil,2873,Bool,NULL
+AGGREGATE BIN-6 TOLERANCE FAULT-- GT,coil,2874,Bool,NULL
+AGGREGATE BIN-6 TOLERANCE FAULT-- LT,coil,2875,Bool,NULL
+CEMENT TOLERANCE FAULT C-1 GT,coil,2876,Bool,NULL
+CEMENT TOLERANCE FAULT C-1 LT,coil,2877,Bool,NULL
+CEMENT TOLERANCE FAULT C-2 GT,coil,2878,Bool,NULL
+CEMENT TOLERANCE FAULT C-2 LT,coil,2879,Bool,NULL
+CEMENT TOLERANCE FAULT C-3 GT,coil,2880,Bool,NULL
+CEMENT TOLERANCE FAULT C-3 LT,coil,2881,Bool,NULL
+CEMENT TOLERANCE FAULT C-4 GT,coil,2882,Bool,NULL
+CEMENT TOLERANCE FAULT C-4 LT,coil,2883,Bool,NULL
+WATER TOLERANCE FAULT W-1 GT,coil,2884,Bool,NULL
+WATER TOLERANCE FAULT W-1 LT,coil,2885,Bool,NULL
+WATER TOLERANCE FAULT W-2 GT,coil,2886,Bool,NULL
+WATER TOLERANCE FAULT W-2 LT,coil,2887,Bool,NULL
+ADMIXTURE-1 TOLERANCE FAULT GT,coil,2888,Bool,NULL
+ADMIXTURE-1 TOLERANCE FAULT LT,coil,2889,Bool,NULL
+ADMIXTURE-2 TOLERANCE FAULT GT,coil,2890,Bool,NULL
+ADMIXTURE-2 TOLERANCE FAULT LT,coil,2891,Bool,NULL
+SKIP DOWN TO WAITING FAULT,coil,2892,Bool,NULL
+SKIP WAITING TO TOP FAULT,coil,2893,Bool,NULL
+CLOSE ON ,coil,2894,Bool,NULL

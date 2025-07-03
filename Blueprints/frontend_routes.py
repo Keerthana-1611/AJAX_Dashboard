@@ -2211,3 +2211,487 @@ def get_all_materials():
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
+
+# Add Configuration BOM Section 1
+@frontend.route('/add_configuration_bom_sec1', methods=['POST'])
+def configuration_bom_sec1():
+    try:
+        data = request.get_json()
+
+        short_code = data.get('Short_Code')
+        scale_type = data.get('Scale_Type')
+        max_value = data.get('Max_Value')
+        bin_number = data.get('Bin_Number')
+        batch_number = data.get('Batch_Number')
+        material_code = data.get('Material_Code')
+        action = data.get('Action')
+
+        # Input validation
+        if not all([short_code, scale_type, max_value, bin_number, batch_number, material_code, action]):
+            return jsonify({
+                "success": False,
+                "error": "All fields (Short_Code, Scale_Type, Max_Value, Bin_Number, Batch_Number, Material_Code, Action) are required"
+            }), 400
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+
+        insert_query = """
+            INSERT INTO config_bom_sec1 (
+                Short_Code, 
+                Scale_Type, 
+                Max_Value, 
+                Bin_Number, 
+                Batch_Number, 
+                Material_Code, 
+                Action
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (
+            short_code,
+            scale_type,
+            max_value,
+            bin_number,
+            batch_number,
+            material_code,
+            action
+        ))
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "ConfigurationBom Section1 added successfully",
+            "config_id1": cursor.lastrowid
+        })
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Update Configuration BOM Section 1
+@frontend.route('/update_configuration_bom_sec1', methods=['POST'])
+def update_configuration_bom_sec1():
+    try:
+        updates = request.get_json()
+        data = updates.get('updates')
+        product_id = data.get('Product_ID') 
+
+        if not data:
+            return jsonify({"success": False, "error": "updates is required"}), 400
+        if not product_id:
+            return jsonify({"success": False, "error": "Product_ID is required"}), 400
+
+        fields = [
+            'Short_Code', 'Scale_Type', 'Max_Value',
+            'Bin_Number', 'Batch_Number', 'Material_Code', 'Action'
+        ]
+        update_clauses = []
+        values = []
+
+        for field in fields:
+            if field in data:
+                update_clauses.append(f"`{field}` = %s")
+                values.append(data[field])
+
+        if not update_clauses:
+            return jsonify({"success": False, "error": "No fields to update"}), 400
+
+        update_query = f"""
+            UPDATE config_bom_sec1 SET {', '.join(update_clauses)}
+            WHERE Product_ID = %s
+        """
+        values.append(product_id)
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(update_query, values)
+        conn.commit()
+
+        return jsonify({"success": True, "message": "Configuration BOM Section 1 updated successfully"})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Delete Configuration BOM Section 1
+@frontend.route('/delete_configuration_bom_sec1', methods=['POST'])
+def delete_configuration_bom_sec1():
+    try:
+        data = request.get_json()
+        product_ids = data.get('Product_ID')
+
+        if not product_ids or not isinstance(product_ids, list):
+            return jsonify({"success": False, "error": "Product_ID (list) is required"}), 400
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+
+        placeholders = ','.join(['%s'] * len(product_ids))
+        cursor.execute(f"DELETE FROM config_bom_sec1 WHERE Product_ID IN ({placeholders})", tuple(product_ids))
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": f"Deleted {cursor.rowcount} configuration record(s)"
+        })
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Get all Configuration BOM Section 1
+@frontend.route('/get_configuration_bom_sec1', methods=['GET'])
+def get_configuration_bom_sec1():
+    try:
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM config_bom_sec1")
+        records = cursor.fetchall()
+
+        return jsonify({"success": True, "config_bom_sec1": records})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Add Configuration BOM Section 2
+@frontend.route('/add_configuration_bom_sec2', methods=['POST'])
+def configuration_bom_sec2():
+    try:
+        data = request.get_json()
+
+        material_code = data.get('Material_Code')
+        offset_value = data.get('Offset_Value')
+        tolerance = data.get('Tolerance')
+        max_absorption = data.get('Max_Absorption')
+        max_surface = data.get('Max_Surface')
+        coarse_feed_associate = data.get('Coarse_Feed_Associate')
+
+        # Input validation
+        required_fields = [material_code, offset_value, tolerance, max_absorption, max_surface, coarse_feed_associate]
+        if any(field is None for field in required_fields):
+            return jsonify({
+                "success": False,
+                "error": "All fields (Material_Code, Offset_Value, Tolerance, Max_Absorption, Max_Surface, Coarse_Feed_Associate) are required"
+            }), 400
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+
+        insert_query = """
+            INSERT INTO config_bom_sec2 (
+                Material_Code, 
+                Offset_Value, 
+                Tolerance, 
+                Max_Absorption, 
+                Max_Surface, 
+                Coarse_Feed_Associate
+            )
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (
+            material_code,
+            offset_value,
+            tolerance,
+            max_absorption,
+            max_surface,
+            coarse_feed_associate
+        ))
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Configuration BOM Section 2 added successfully",
+            "config_id2": cursor.lastrowid
+        })
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Update Configuration BOM Section 2
+@frontend.route('/update_configuration_bom_sec2', methods=['POST'])
+def update_configuration_bom_sec2():
+    try:
+        updates = request.get_json()
+        data = updates.get('updates')
+        record_id = data.get('ID')  # Must match table's primary key
+
+        if not data:
+            return jsonify({"success": False, "error": "updates is required"}), 400
+        if not record_id:
+            return jsonify({"success": False, "error": "ID is required"}), 400
+
+        fields = [
+            'Material_Code', 'Offset_Value', 'Tolerance', 'Max_Absorption',
+            'Max_Surface', 'Coarse_Feed_Associate'
+        ]
+        update_clauses = []
+        values = []
+
+        for field in fields:
+            if field in data:
+                update_clauses.append(f"`{field}` = %s")
+                values.append(data[field])
+
+        if not update_clauses:
+            return jsonify({"success": False, "error": "No fields to update"}), 400
+
+        update_query = f"""
+            UPDATE config_bom_sec2 SET {', '.join(update_clauses)}
+            WHERE ID = %s
+        """
+        values.append(record_id)
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(update_query, values)
+        conn.commit()
+
+        return jsonify({"success": True, "message": "Configuration BOM Section 2 updated successfully"})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Delete Configuration BOM Section 2
+@frontend.route('/delete_configuration_bom_sec2', methods=['POST'])
+def delete_configuration_bom_sec2():
+    try:
+        data = request.get_json()
+        record_ids = data.get('ID')
+
+        if not record_ids or not isinstance(record_ids, list):
+            return jsonify({"success": False, "error": "IDs (list) is required"}), 400
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+
+        placeholders = ','.join(['%s'] * len(record_ids))
+        cursor.execute(f"DELETE FROM config_bom_sec2 WHERE ID IN ({placeholders})", tuple(record_ids))
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": f"Deleted {cursor.rowcount} configuration record(s)"
+        })
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Get All Configuration BOM Section 2
+@frontend.route('/get_configuration_bom_sec2', methods=['GET'])
+def get_configuration_bom_sec2():
+    try:
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM config_bom_sec2")
+        data = cursor.fetchall()
+
+        return jsonify({"success": True, "config_bom_sec2": data})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Add QC_Calibration
+@frontend.route('/add_qc_calibration', methods=['POST'])
+def add_qc_calibration():
+    try:
+        data = request.get_json()
+
+        scale_name = data.get('Scale_Name')
+        min_value = data.get('Min_Value')
+        max_value = data.get('Max_Value')
+        span_weight = data.get('Span_Weight')
+        actual_value = data.get('Actual_Value')
+
+        # Input validation
+        required_fields = [scale_name, min_value, max_value, span_weight, actual_value]
+        if any(field is None for field in required_fields):
+            return jsonify({
+                "success": False,
+                "error": "All fields (Scale_Name, Min_Value, Max_Value, Span_Weight, Actual_Value) are required"
+            }), 400
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+
+        insert_query = """
+            INSERT INTO qc_calibration (
+               Scale_Name, 
+               Min_Value, 
+               Max_Value, 
+               Span_Weight, 
+               Actual_Value
+            )
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (
+           scale_name, 
+           min_value, 
+           max_value, 
+           span_weight, 
+           actual_value
+        ))
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Calibration added successfully",
+            "calibration": cursor.lastrowid
+        })
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Update QC Calibration
+@frontend.route('/update_qc_calibration', methods=['POST'])
+def update_qc_calibration():
+    try:
+        updates = request.get_json()
+        data = updates.get('updates')
+        calibration_id = data.get('ID')
+
+        if not data:
+            return jsonify({"success": False, "error": "updates is required"}), 400
+        if not calibration_id:
+            return jsonify({"success": False, "error": "ID is required"}), 400
+
+        fields = ['Scale_Name', 'Min_Value', 'Max_Value', 'Span_Weight', 'Actual_Value']
+        update_clauses = []
+        values = []
+
+        for field in fields:
+            if field in data:
+                update_clauses.append(f"`{field}` = %s")
+                values.append(data[field])
+
+        if not update_clauses:
+            return jsonify({"success": False, "error": "No fields to update"}), 400
+
+        update_query = f"""
+            UPDATE qc_calibration SET {', '.join(update_clauses)}
+            WHERE ID = %s
+        """
+        values.append(calibration_id)
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(update_query, values)
+        conn.commit()
+
+        return jsonify({"success": True, "update": "QC Calibration updated successfully"})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Get All QC Calibration
+@frontend.route('/get_qc_calibration', methods=['GET'])
+def get_qc_calibration():
+    try:
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM qc_calibration")
+        records = cursor.fetchall()
+
+        return jsonify({"success": True, "qc_calibration_data": records})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Update QC permission setting
+@frontend.route('/update_qc_permission_settings', methods=['POST'])
+def qc_update_permission_settings():
+    try:
+        data = request.get_json()
+        setting_id = data.get('ID')
+
+        if not setting_id:
+            return jsonify({"success": False, "error": "ID is required"}), 400
+
+        # Fields that can be updated
+        fields = ['Channel_Description', 'Coarse_Feed', 'Bin_Correction', 'Offline_Swapp', 'Batch_Correction', 'Terminate']
+        update_clauses = []
+        values = []
+
+        for field in fields:
+            if field in data:
+                update_clauses.append(f"`{field}` = %s")
+                values.append(data[field])
+
+        if not update_clauses:
+            return jsonify({"success": False, "error": "No fields to update"}), 400
+
+        update_query = f"""
+            UPDATE qc_permission_settings SET {', '.join(update_clauses)}
+            WHERE ID = %s
+        """
+        values.append(setting_id)
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(update_query, values)
+        conn.commit()
+
+        return jsonify({"success": True, "message": "Permission settings updated successfully"})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Get all qc permission settings
+@frontend.route('/qc_get_permission_settings', methods=['GET'])
+def qc_get_permission_settings():
+    try:
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM qc_permission_settings")
+        settings = cursor.fetchall()
+
+        return jsonify({"success": True, "qc_permission_settings": settings})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()

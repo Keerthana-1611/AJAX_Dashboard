@@ -7,6 +7,7 @@ from modbus_handler import load_modbus_registry,start_thread
 from db_backup_restore import backup_database,restore_database
 from flask_cors import CORS
 import os
+
 import sys
 import pystray
 from PIL import Image
@@ -76,6 +77,6 @@ if __name__ == '__main__':
         load_modbus_registry()
         start_thread()
         # backup_database()
-    setup_database_and_tables()  # If needed
+    # setup_database_and_tables()  # If needed
     socketio.init_app(app=app, cors_allowed_origins="*")
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)

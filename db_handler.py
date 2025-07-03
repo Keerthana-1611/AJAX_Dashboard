@@ -408,6 +408,56 @@ def create_tables():
                 `Category_Code` VARCHAR(225) NOT NULL,
                 PRIMARY KEY (`ID`)
             );
+        """,
+
+        'Config_BOM_Sec1': """
+            CREATE TABLE IF NOT EXISTS `config_bom_sec1` (
+                `Product_ID` INT NOT NULL AUTO_INCREMENT,
+                `Short_Code` VARCHAR(225) NOT NULL,
+                `Scale_Type` VARCHAR(225) NOT NULL,
+                `Max_Value` FLOAT NOT NULL,
+                `Bin_Number` INT NOT NULL,
+                `Batch_Number` INT NOT NULL,
+                `Material_Code` VARCHAR(225) NOT NULL,
+                `Action` VARCHAR(45) NOT NULL,
+                PRIMARY KEY (`Product_ID`)    
+            );
+        """,
+
+        'Config_BOM_Sec2': """
+            CREATE TABLE IF NOT EXISTS `config_bom_sec2` (
+                `ID` INT NOT NULL AUTO_INCREMENT,
+                `Material_Code` VARCHAR(225) NOT NULL,
+                `Offset_Value` INT NOT NULL,
+                `Tolerance` INT NOT NULL,
+                `Max_Absorption` FLOAT NOT NULL,
+                `Max_Surface` FLOAT NOT NULL,
+                `Coarse_Feed_Associate` VARCHAR(225) NOT NULL,
+                PRIMARY KEY (`ID`)
+            );
+        """,
+
+        'Calibration': """
+            CREATE TABLE IF NOT EXISTS `qc_calibration` (
+                `ID` INT NOT NULL AUTO_INCREMENT,
+                `Scale_Name` VARCHAR(225) NOT NULL,
+                `Min_Value` FLOAT NOT NULL,
+                `Max_Value` FLOAT NOT NULL,
+                `Span_Weight` FLOAT NOT NULL,
+                `Actual_Value` FLOAT NOT NULL,
+                PRIMARY KEY (`ID`));
+        """,
+
+        'Permission_Settings': """
+            CREATE TABLE TABLE IF NOT EXISTS `qc_permission_settings` (
+                `ID` INT NOT NULL AUTO_INCREMENT,
+                `Channel_Description` VARCHAR(225) NOT NULL,
+                `Coarse_Feed` TINYINT NOT NULL,
+                `Bin_Correction` TINYINT NOT NULL,
+                `Offline_Swapp` TINYINT NOT NULL,
+                `Batch_Correction` TINYINT NOT NULL,
+                `Terminate` TINYINT NOT NULL,
+                PRIMARY KEY (`ID`));
         """
 
     }

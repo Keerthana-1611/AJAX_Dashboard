@@ -1,242 +1,1443 @@
 {
-    "motor_start": {
+    "Mode_AGG BIN 1": {
+        "register_type": "holding_register",
+        "address": 37768,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mode_AGG BIN 2": {
+        "register_type": "holding_register",
+        "address": 37769,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mode_AGG BIN 3": {
+        "register_type": "holding_register",
+        "address": 37770,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mode_AGG BIN 4": {
+        "register_type": "holding_register",
+        "address": 37771,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mode_AGG BIN 5": {
+        "register_type": "holding_register",
+        "address": 37772,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mode_AGG BIN 6": {
+        "register_type": "holding_register",
+        "address": 37773,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mode_CEM BIN 1": {
+        "register_type": "holding_register",
+        "address": 37774,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mode_CEM BIN 2": {
+        "register_type": "holding_register",
+        "address": 37775,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mode_CEM BIN 3": {
+        "register_type": "holding_register",
+        "address": 37776,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mode_CEM BIN 4": {
+        "register_type": "holding_register",
+        "address": 37777,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mode_ADMIX 1": {
+        "register_type": "holding_register",
+        "address": 37778,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mode_ADMIX 2": {
+        "register_type": "holding_register",
+        "address": 37779,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mode_WATER 1": {
+        "register_type": "holding_register",
+        "address": 37780,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mode_WATER 2": {
+        "register_type": "holding_register",
+        "address": 37781,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Mean_Correction": {
+        "register_type": "holding_register",
+        "address": 37782,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "No_Bin_AGG BIN 1": {
+        "register_type": "holding_register",
+        "address": 37783,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "No_Bin_CEM BIN 1": {
+        "register_type": "holding_register",
+        "address": 37789,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "No_Bin_ADMIX 1": {
+        "register_type": "holding_register",
+        "address": 37793,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "No_Bin_WATER 1": {
+        "register_type": "holding_register",
+        "address": 37795,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_AGG BIN 1": {
+        "register_type": "holding_register",
+        "address": 37797,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_AGG BIN 2": {
+        "register_type": "holding_register",
+        "address": 37798,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_AGG BIN 3": {
+        "register_type": "holding_register",
+        "address": 37799,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_AGG BIN 4": {
+        "register_type": "holding_register",
+        "address": 37800,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_AGG BIN 5": {
+        "register_type": "holding_register",
+        "address": 37801,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_AGG BIN 6": {
+        "register_type": "holding_register",
+        "address": 37802,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_CEM BIN 1": {
+        "register_type": "holding_register",
+        "address": 37803,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_CEM BIN 2": {
+        "register_type": "holding_register",
+        "address": 37804,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_CEM BIN 3": {
+        "register_type": "holding_register",
+        "address": 37805,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_CEM BIN 4": {
+        "register_type": "holding_register",
+        "address": 37806,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_ADMIX 1": {
+        "register_type": "holding_register",
+        "address": 37807,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_ADMIX 2": {
+        "register_type": "holding_register",
+        "address": 37808,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_WATER 1": {
+        "register_type": "holding_register",
+        "address": 37809,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Order_Bin_WATER 2": {
+        "register_type": "holding_register",
+        "address": 37810,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "WATER MAX OFFSET": {
+        "register_type": "holding_register",
+        "address": 37994,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "WATER MIN OFFSET": {
+        "register_type": "holding_register",
+        "address": 37996,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Dead_Weight_AGGREGATE": {
+        "register_type": "holding_register",
+        "address": 37998,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Dead_Weight_CEMENT": {
+        "register_type": "holding_register",
+        "address": 38000,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Dead_Weight_WATER": {
+        "register_type": "holding_register",
+        "address": 38002,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Dead_Weight_ADMIXTURES": {
+        "register_type": "holding_register",
+        "address": 38004,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Filling_Time_AGGREGATE": {
+        "register_type": "holding_register",
+        "address": 38006,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Filling_Time_CEMENT": {
+        "register_type": "holding_register",
+        "address": 38007,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Filling_Time_WATER": {
+        "register_type": "holding_register",
+        "address": 38008,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Filling_Time_ADMIXTURES": {
+        "register_type": "holding_register",
+        "address": 38009,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Discharge_Time_AGGREGATE": {
+        "register_type": "holding_register",
+        "address": 38010,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Discharge_Time_CEMENT": {
+        "register_type": "holding_register",
+        "address": 38011,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Discharge_Time_WATER": {
+        "register_type": "holding_register",
+        "address": 38012,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Discharge_Time_ADMIXTURES": {
+        "register_type": "holding_register",
+        "address": 38013,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Loading_Time_AGGREGATE": {
+        "register_type": "holding_register",
+        "address": 38014,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Loading_Time_CEMENT": {
+        "register_type": "holding_register",
+        "address": 38015,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Loading_Time_WATER": {
+        "register_type": "holding_register",
+        "address": 38016,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "Loading_Time_ADMIXTURES": {
+        "register_type": "holding_register",
+        "address": 38017,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "AGG PRE RUN TIME": {
+        "register_type": "holding_register",
+        "address": 37811,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "AGG VIB ON TIME": {
+        "register_type": "holding_register",
+        "address": 37812,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "AGG VIB OFF TIME": {
+        "register_type": "holding_register",
+        "address": 37813,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "PRODUCT DELAY": {
+        "register_type": "holding_register",
+        "address": 37814,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "CEM VIB ON TIME": {
+        "register_type": "holding_register",
+        "address": 37815,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "CEM VIB OFF TIME": {
+        "register_type": "holding_register",
+        "address": 37816,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "STABILIZATION TIME": {
+        "register_type": "holding_register",
+        "address": 37994,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "LJ_Weight_AGG BIN 1": {
+        "register_type": "holding_register",
+        "address": 6846,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Weight_AGG BIN 2": {
+        "register_type": "holding_register",
+        "address": 6854,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Weight_AGG BIN 3": {
+        "register_type": "holding_register",
+        "address": 6862,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Weight_AGG BIN 4": {
+        "register_type": "holding_register",
+        "address": 6870,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Weight_AGG BIN 5": {
+        "register_type": "holding_register",
+        "address": 6878,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Weight_AGG BIN 6": {
+        "register_type": "holding_register",
+        "address": 6886,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Weight_CEM BIN 1": {
+        "register_type": "holding_register",
+        "address": 6892,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Weight_CEM BIN 2": {
+        "register_type": "holding_register",
+        "address": 6890,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Weight_CEM BIN 3": {
+        "register_type": "holding_register",
+        "address": 6898,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Weight_CEM BIN 4": {
+        "register_type": "holding_register",
+        "address": 6906,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Weight_ADMIX 1": {
+        "register_type": "holding_register",
+        "address": 37838,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Weight_ADMIX 2": {
+        "register_type": "holding_register",
+        "address": 37840,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Weight_WATER 1": {
+        "register_type": "holding_register",
+        "address": 6914,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Weight_WATER 2": {
+        "register_type": "holding_register",
+        "address": 6920,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "LJ_Time_AGG BIN 1": {
+        "register_type": "holding_register",
+        "address": 6850,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "LJ_Time_AGG BIN 2": {
+        "register_type": "holding_register",
+        "address": 6858,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "LJ_Time_AGG BIN 3": {
+        "register_type": "holding_register",
+        "address": 6866,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "LJ_Time_AGG BIN 4": {
+        "register_type": "holding_register",
+        "address": 6874,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "LJ_Time_AGG BIN 5": {
+        "register_type": "holding_register",
+        "address": 6882,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "LJ_Time_AGG BIN 6": {
+        "register_type": "holding_register",
+        "address": 6890,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "LJ_Time_CEM BIN 1": {
+        "register_type": "holding_register",
+        "address": 6886,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "LJ_Time_CEM BIN 2": {
+        "register_type": "holding_register",
+        "address": 6894,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "LJ_Time_CEM BIN 3": {
+        "register_type": "holding_register",
+        "address": 6902,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "LJ_Time_CEM BIN 4": {
+        "register_type": "holding_register",
+        "address": 6910,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "LJ_Time_ADMIX 1": {
+        "register_type": "holding_register",
+        "address": 37856,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "LJ_Time_ADMIX 2": {
+        "register_type": "holding_register",
+        "address": 37857,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "LJ_Time_WATER 1": {
+        "register_type": "holding_register",
+        "address": 6918,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "LJ_Time_WATER 2": {
+        "register_type": "holding_register",
+        "address": 6924,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SJ_Weight_AGG BIN 1": {
+        "register_type": "holding_register",
+        "address": 6848,
+        "value_type": "U16",
+        "inverse": false
+    },
+    "SJ_Weight_AGG BIN 2": {
+        "register_type": "holding_register",
+        "address": 6856,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "SJ_Weight_AGG BIN 3": {
+        "register_type": "holding_register",
+        "address": 6864,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "SJ_Weight_AGG BIN 4": {
+        "register_type": "holding_register",
+        "address": 6782,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "SJ_Weight_AGG BIN 5": {
+        "register_type": "holding_register",
+        "address": 6880,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "SJ_Weight_AGG BIN 6": {
+        "register_type": "holding_register",
+        "address": 6888,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "SJ_Weight_CEM BIN 1": {
+        "register_type": "holding_register",
+        "address": 6894,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "SJ_Weight_CEM BIN 2": {
+        "register_type": "holding_register",
+        "address": 6892,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "SJ_Weight_CEM BIN 3": {
+        "register_type": "holding_register",
+        "address": 6900,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "SJ_Weight_CEM BIN 4": {
+        "register_type": "holding_register",
+        "address": 6908,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "SJ_Weight_ADMIX 1": {
+        "register_type": "holding_register",
+        "address": 37880,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "SJ_Weight_ADMIX 2": {
+        "register_type": "holding_register",
+        "address": 37882,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "SJ_Weight_WATER 1": {
+        "register_type": "holding_register",
+        "address": 6916,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "SJ_Weight_WATER 2": {
+        "register_type": "holding_register",
+        "address": 6922,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "SL_Time_AGG BIN 1": {
+        "register_type": "holding_register",
+        "address": 6852,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SL_Time_AGG BIN 2": {
+        "register_type": "holding_register",
+        "address": 6860,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SL_Time_AGG BIN 3": {
+        "register_type": "holding_register",
+        "address": 6868,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SL_Time_AGG BIN 4": {
+        "register_type": "holding_register",
+        "address": 6876,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SL_Time_AGG BIN 5": {
+        "register_type": "holding_register",
+        "address": 6884,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SL_Time_AGG BIN 6": {
+        "register_type": "holding_register",
+        "address": 6892,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SL_Time_CEM BIN 1": {
+        "register_type": "holding_register",
+        "address": 6888,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SL_Time_CEM BIN 2": {
+        "register_type": "holding_register",
+        "address": 6896,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SL_Time_CEM BIN 3": {
+        "register_type": "holding_register",
+        "address": 6904,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SL_Time_CEM BIN 4": {
+        "register_type": "holding_register",
+        "address": 6912,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SL_Time_ADMIX 1": {
+        "register_type": "holding_register",
+        "address": 37898,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SL_Time_ADMIX 2": {
+        "register_type": "holding_register",
+        "address": 37899,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SL_Time_WATER 1": {
+        "register_type": "holding_register",
+        "address": 6920,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SL_Time_WATER 2": {
+        "register_type": "holding_register",
+        "address": 6926,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "Tolerance_AGG BIN 1": {
+        "register_type": "holding_register",
+        "address": 37902,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "Tolerance_AGG BIN 2": {
+        "register_type": "holding_register",
+        "address": 37904,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "Tolerance_AGG BIN 3": {
+        "register_type": "holding_register",
+        "address": 37906,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "Tolerance_AGG BIN 4": {
+        "register_type": "holding_register",
+        "address": 37908,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "Tolerance_AGG BIN 5": {
+        "register_type": "holding_register",
+        "address": 37910,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "Tolerance_AGG BIN 6": {
+        "register_type": "holding_register",
+        "address": 37912,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "Tolerance_CEM BIN 1": {
+        "register_type": "holding_register",
+        "address": 37914,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "Tolerance_CEM BIN 2": {
+        "register_type": "holding_register",
+        "address": 37916,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "Tolerance_CEM BIN 3": {
+        "register_type": "holding_register",
+        "address": 37918,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "Tolerance_CEM BIN 4": {
+        "register_type": "holding_register",
+        "address": 37920,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "Tolerance_ADMIX 1": {
+        "register_type": "holding_register",
+        "address": 37922,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "Tolerance_ADMIX 2": {
+        "register_type": "holding_register",
+        "address": 37924,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "Tolerance_WATER 1": {
+        "register_type": "holding_register",
+        "address": 37926,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "Tolerance_WATER 2": {
+        "register_type": "holding_register",
+        "address": 37928,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_AGG BIN 1": {
+        "register_type": "holding_register",
+        "address": 37930,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_AGG BIN 2": {
+        "register_type": "holding_register",
+        "address": 37932,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_AGG BIN 3": {
+        "register_type": "holding_register",
+        "address": 37934,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_AGG BIN 4": {
+        "register_type": "holding_register",
+        "address": 37936,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_AGG BIN 5": {
+        "register_type": "holding_register",
+        "address": 37938,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_AGG BIN 6": {
+        "register_type": "holding_register",
+        "address": 37940,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_CEM BIN 1": {
+        "register_type": "holding_register",
+        "address": 37942,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_CEM BIN 2": {
+        "register_type": "holding_register",
+        "address": 37944,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_CEM BIN 3": {
+        "register_type": "holding_register",
+        "address": 37946,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_CEM BIN 4": {
+        "register_type": "holding_register",
+        "address": 37948,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_ADMIX 1": {
+        "register_type": "holding_register",
+        "address": 37950,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_ADMIX 2": {
+        "register_type": "holding_register",
+        "address": 37952,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_WATER 1": {
+        "register_type": "holding_register",
+        "address": 37954,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "FW_WATER 2": {
+        "register_type": "holding_register",
+        "address": 37956,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "HOURS": {
+        "register_type": "holding_register",
+        "address": 37906,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "MINS": {
+        "register_type": "holding_register",
+        "address": 37908,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "SECS": {
+        "register_type": "holding_register",
+        "address": 37910,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "MIXER CAPACITY": {
+        "register_type": "holding_register",
+        "address": 37912,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MIXING TIME": {
+        "register_type": "holding_register",
+        "address": 37914,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "FULL DIS. TIME": {
+        "register_type": "holding_register",
+        "address": 37915,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "HALF DIS. TIME": {
+        "register_type": "holding_register",
+        "address": 37916,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "VECHILE CAPACITY": {
+        "register_type": "holding_register",
+        "address": 37918,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "GREASE PUMP ON TIME": {
+        "register_type": "holding_register",
+        "address": 37920,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "GREASE PUMP OFF TIME": {
+        "register_type": "holding_register",
+        "address": 37921,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "MS_AGG 1": {
+        "register_type": "holding_register",
+        "address": 37922,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MS_AGG2": {
+        "register_type": "holding_register",
+        "address": 37924,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MS_AGG3": {
+        "register_type": "holding_register",
+        "address": 37926,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MS_AGG4": {
+        "register_type": "holding_register",
+        "address": 37928,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MS_AGG5": {
+        "register_type": "holding_register",
+        "address": 37930,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MS_AGG6": {
+        "register_type": "holding_register",
+        "address": 37932,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MIXER MINIMUM CAPACITY": {
+        "register_type": "holding_register",
+        "address": 37934,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MIXER MAX CAPACITY": {
+        "register_type": "holding_register",
+        "address": 37936,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MIXER delta on time": {
+        "register_type": "holding_register",
+        "address": 37938,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "MIXER GATE CLOSE FAULT": {
+        "register_type": "holding_register",
+        "address": 37939,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "CLOSE TO HALF OPEN TIME": {
+        "register_type": "holding_register",
+        "address": 37940,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "MIXER GATE OPEN FAULT": {
+        "register_type": "holding_register",
+        "address": 38293,
+        "value_type": "",
+        "inverse": false
+    },
+    "BELT TRANSFER TIME": {
+        "register_type": "holding_register",
+        "address": 37941,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "MD_AGG BIN 1": {
+        "register_type": "holding_register",
+        "address": 38768,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MD_AGG BIN 2": {
+        "register_type": "holding_register",
+        "address": 38770,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MD_AGG BIN 3": {
+        "register_type": "holding_register",
+        "address": 38772,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MD_AGG BIN 4": {
+        "register_type": "holding_register",
+        "address": 38774,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MD_AGG BIN 5": {
+        "register_type": "holding_register",
+        "address": 38776,
+        
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MD_AGG BIN 6": {
+        "register_type": "holding_register",
+        "address": 38778,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MD_CEM BIN 1": {
+        "register_type": "holding_register",
+        "address": 38780,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MD_CEM BIN 2": {
+        "register_type": "holding_register",
+        "address": 38782,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MD_CEM BIN 3": {
+        "register_type": "holding_register",
+        "address": 38784,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MD_CEM BIN 4": {
+        "register_type": "holding_register",
+        "address": 38786,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MD_ADMIX 1": {
+        "register_type": "holding_register",
+        "address": 38788,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MD_ADMIX 2": {
+        "register_type": "holding_register",
+        "address": 38790,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MD_WATER 1": {
+        "register_type": "holding_register",
+        "address": 38792,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MD_WATER 2": {
+        "register_type": "holding_register",
+        "address": 38794,
+        "value_type": "Float",
+        "inverse": false
+    },
+    "MODE": {
         "register_type": "coil",
-        "address": 0,
-        "value_type" : "Bool",
-        "inverse" : "null"
+        "address": 47534,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "valve_open": {
+    "Water_WEIGHING": {
         "register_type": "coil",
-        "address": 1,
-        "value_type" : "Bool",
-        "inverse" : "null"
+        "address": 47541,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "emergency_stop": {
+    "Water_PULSING": {
         "register_type": "coil",
-        "address": 2,
-        "value_type" : "Bool",
-        "inverse" : "null"
+        "address": 47542,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "temperature_setpoint": {
-        "register_type": "holding_register",
-        "address": 0,
-        "value_type" : "U16",
-        "inverse" : false
-    },
-    "pressure_limit": {
-        "register_type": "holding_register",
-        "address": 1,
-        "value_type" : "U16",
-        "inverse" : false
-    },
-    "Lower Pressure": {
-        "register_type": "holding_register",
-        "address": 2,
-        "value_type" : "Float",
-        "inverse" : true
-    },
-    "Upper pressure": {
-        "register_type": "holding_register",
-        "address": 1,
-        "value_type" : "U16",
-        "inverse" : false
-    },
-    "temperature_actual": {
-        "register_type": "holding_register",
-        "address": 2,
-        "value_type" : "Float",
-        "inverse" : true
-    },
-    "under Lower": {
-        "register_type": "holding_register",
-        "address": 1,
-        "value_type" : "U16",
-        "inverse" : false
-    },
-    "Under Upper": {
-        "register_type": "holding_register",
-        "address": 2,
-        "value_type" : "Float",
-        "inverse" : true
-    },
-    "motor_1start": {
+    "Water_IN CMT": {
         "register_type": "coil",
-        "address": 0,
-        "value_type" : "Bool",
-        "inverse" : "null"
+        "address": 47543,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "valve_2open": {
+    "WT_INLINER": {
         "register_type": "coil",
-        "address": 1,
-        "value_type" : "Bool",
-        "inverse" : "null"
+        "address": 47538,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "emergency_3stop": {
+    "WT_STAR BIN": {
         "register_type": "coil",
-        "address": 2,
-        "value_type" : "Bool",
-        "inverse" : "null"
+        "address": 47539,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "temperature_1setpoint": {
-        "register_type": "holding_register",
-        "address": 0,
-        "value_type" : "U16",
-        "inverse" : false
-    },
-    "pressure_2limit": {
-        "register_type": "holding_register",
-        "address": 1,
-        "value_type" : "U16",
-        "inverse" : false
-    },
-    "Lower 3Pressure": {
-        "register_type": "holding_register",
-        "address": 2,
-        "value_type" : "Float",
-        "inverse" : true
-    },
-    "Upper 12pressure": {
-        "register_type": "holding_register",
-        "address": 1,
-        "value_type" : "U16",
-        "inverse" : false
-    },
-    "temperature_231actual": {
-        "register_type": "holding_register",
-        "address": 2,
-        "value_type" : "Float",
-        "inverse" : true
-    },
-    "under 12Lower": {
-        "register_type": "holding_register",
-        "address": 1,
-        "value_type" : "U16",
-        "inverse" : false
-    },
-    "valv1_open": {
+    "WT_SQUARE": {
         "register_type": "coil",
-        "address": 1,
-        "value_type" : "Bool",
-        "inverse" : "null"
+        "address": 47540,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "emerg1ency_stop": {
+    "WT_WEIGHING": {
         "register_type": "coil",
-        "address": 2,
-        "value_type" : "Bool",
-        "inverse" : "null"
+        "address": 47544,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "tempe1rature_setpoint": {
-        "register_type": "holding_register",
-        "address": 0,
-        "value_type" : "U16",
-        "inverse" : false
-    },
-    "pressu1re_limit": {
-        "register_type": "holding_register",
-        "address": 1,
-        "value_type" : "U16",
-        "inverse" : false
-    },
-    "Lowe1r Pressure": {
-        "register_type": "holding_register",
-        "address": 2,
-        "value_type" : "Float",
-        "inverse" : true
-    },
-    "Upper 1pressure": {
-        "register_type": "holding_register",
-        "address": 1,
-        "value_type" : "U16",
-        "inverse" : false
-    },
-    "temper1ature_actual": {
-        "register_type": "holding_register",
-        "address": 2,
-        "value_type" : "Float",
-        "inverse" : true
-    },
-    "under L1ower": {
-        "register_type": "holding_register",
-        "address": 1,
-        "value_type" : "U16",
-        "inverse" : false
-    },
-    "Under Up1per": {
-        "register_type": "holding_register",
-        "address": 2,
-        "value_type" : "Float",
-        "inverse" : true
-    },
-    "motor_1st1art": {
+    "WT_PULSING": {
         "register_type": "coil",
-        "address": 0,
-        "value_type" : "Bool",
-        "inverse" : "null"
+        "address": 47545,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "valve_21open": {
+    "WT_TIMING": {
         "register_type": "coil",
-        "address": 1,
-        "value_type" : "Bool",
-        "inverse" : "null"
+        "address": 47546,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "emergency_3s1top": {
+    "OP_surface": {
         "register_type": "coil",
-        "address": 2,
-        "value_type" : "Bool",
-        "inverse" : "null"
+        "address": 47536,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "temperature11_1setpoint": {
-        "register_type": "holding_register",
-        "address": 0,
-        "value_type" : "U16",
-        "inverse" : false
+    "OP_absorption": {
+        "register_type": "coil",
+        "address": 47537,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "pressure_2limi1t": {
-        "register_type": "holding_register",
-        "address": 1,
-        "value_type" : "U16",
-        "inverse" : false
+    "Alarm_TERMINATE": {
+        "register_type": "coil",
+        "address": 2418,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "Lower 3Pressu1re": {
-        "register_type": "holding_register",
-        "address": 2,
-        "value_type" : "Float",
-        "inverse" : true
+    "Alarm_ACCEPT": {
+        "register_type": "coil",
+        "address": 2419,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "Upper 12pres1sure": {
-        "register_type": "holding_register",
-        "address": 1,
-        "value_type" : "U16",
-        "inverse" : false
+    "AGGREGATE CALIBRATION FAULT": {
+        "register_type": "coil",
+        "address": 2848,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "temperature_231ac1tual": {
-        "register_type": "holding_register",
-        "address": 2,
-        "value_type" : "Float",
-        "inverse" : true
+    "CEMENT CALIBRATION FAULT": {
+        "register_type": "coil",
+        "address": 2849,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "under 12L2ower": {
-        "register_type": "holding_register",
-        "address": 1,
-        "value_type" : "U16",
-        "inverse" : false
+    "WATER CALIBRATION FAULT": {
+        "register_type": "coil",
+        "address": 2850,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "Lowaer 3Pressu1re": {
-        "register_type": "holding_register",
-        "address": 2,
-        "value_type" : "Float",
-        "inverse" : true
+    "ADMIXTURE CALIBRATION FAULT": {
+        "register_type": "coil",
+        "address": 2851,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "Uppser 12pres1sure": {
-        "register_type": "holding_register",
-        "address": 1,
-        "value_type" : "U16",
-        "inverse" : false
+    "AGGREGATE FILLING FAULT": {
+        "register_type": "coil",
+        "address": 2852,
+        "value_type": "Bool",
+        "inverse": "null"
     },
-    "tempserature_231ac1tual": {
-        "register_type": "holding_register",
-        "address": 2,
-        "value_type" : "Float",
-        "inverse" : true
+    "CEMENT FILLING FAULT": {
+        "register_type": "coil",
+        "address": 2853,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "WATER FILLING FAULT": {
+        "register_type": "coil",
+        "address": 2854,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "ADMIXTURE FILLING FAULT": {
+        "register_type": "coil",
+        "address": 2855,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE DISCHARGE FAULT": {
+        "register_type": "coil",
+        "address": 2856,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "CEMENT DISCHARGE FAULT": {
+        "register_type": "coil",
+        "address": 2857,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "WATER DISCHARGE FAULT": {
+        "register_type": "coil",
+        "address": 2858,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "ADMIXTURE DISCHARGE FAULT": {
+        "register_type": "coil",
+        "address": 2859,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE DEAD WEIGHT FAULT": {
+        "register_type": "coil",
+        "address": 2860,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "CEMENT DEAD WEIGHT FAULT": {
+        "register_type": "coil",
+        "address": 2861,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "WATER DEAD WEIGHT FAULT": {
+        "register_type": "coil",
+        "address": 2862,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "ADMIXTURE DEAD WEIGHT FAULT": {
+        "register_type": "coil",
+        "address": 2863,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE BIN-1 TOLERANCE FAULT-- GT": {
+        "register_type": "coil",
+        "address": 2864,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE BIN-1 TOLERANCE FAULT-- LT": {
+        "register_type": "coil",
+        "address": 2865,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE BIN-2 TOLERANCE FAULT-- GT": {
+        "register_type": "coil",
+        "address": 2866,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE BIN-2 TOLERANCE FAULT-- LT": {
+        "register_type": "coil",
+        "address": 2867,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE BIN-3 TOLERANCE FAULT-- GT": {
+        "register_type": "coil",
+        "address": 2868,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE BIN-3 TOLERANCE FAULT-- LT": {
+        "register_type": "coil",
+        "address": 2869,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE BIN-4 TOLERANCE FAULT-- GT": {
+        "register_type": "coil",
+        "address": 2870,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE BIN-4 TOLERANCE FAULT-- LT": {
+        "register_type": "coil",
+        "address": 2871,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE BIN-5 TOLERANCE FAULT-- GT": {
+        "register_type": "coil",
+        "address": 2872,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE BIN-5 TOLERANCE FAULT-- LT": {
+        "register_type": "coil",
+        "address": 2873,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE BIN-6 TOLERANCE FAULT-- GT": {
+        "register_type": "coil",
+        "address": 2874,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "AGGREGATE BIN-6 TOLERANCE FAULT-- LT": {
+        "register_type": "coil",
+        "address": 2875,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "CEMENT TOLERANCE FAULT C-1 GT": {
+        "register_type": "coil",
+        "address": 2876,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "CEMENT TOLERANCE FAULT C-1 LT": {
+        "register_type": "coil",
+        "address": 2877,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "CEMENT TOLERANCE FAULT C-2 GT": {
+        "register_type": "coil",
+        "address": 2878,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "CEMENT TOLERANCE FAULT C-2 LT": {
+        "register_type": "coil",
+        "address": 2879,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "CEMENT TOLERANCE FAULT C-3 GT": {
+        "register_type": "coil",
+        "address": 2880,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "CEMENT TOLERANCE FAULT C-3 LT": {
+        "register_type": "coil",
+        "address": 2881,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "CEMENT TOLERANCE FAULT C-4 GT": {
+        "register_type": "coil",
+        "address": 2882,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "CEMENT TOLERANCE FAULT C-4 LT": {
+        "register_type": "coil",
+        "address": 2883,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "WATER TOLERANCE FAULT W-1 GT": {
+        "register_type": "coil",
+        "address": 2884,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "WATER TOLERANCE FAULT W-1 LT": {
+        "register_type": "coil",
+        "address": 2885,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "WATER TOLERANCE FAULT W-2 GT": {
+        "register_type": "coil",
+        "address": 2886,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "WATER TOLERANCE FAULT W-2 LT": {
+        "register_type": "coil",
+        "address": 2887,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "ADMIXTURE-1 TOLERANCE FAULT GT": {
+        "register_type": "coil",
+        "address": 2888,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "ADMIXTURE-1 TOLERANCE FAULT LT": {
+        "register_type": "coil",
+        "address": 2889,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "ADMIXTURE-2 TOLERANCE FAULT GT": {
+        "register_type": "coil",
+        "address": 2890,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "ADMIXTURE-2 TOLERANCE FAULT LT": {
+        "register_type": "coil",
+        "address": 2891,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "SKIP DOWN TO WAITING FAULT": {
+        "register_type": "coil",
+        "address": 2892,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "SKIP WAITING TO TOP FAULT": {
+        "register_type": "coil",
+        "address": 2893,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "CLOSE ON": {
+        "register_type": "coil",
+        "address": 2894,
+        "value_type": "Bool",
+        "inverse": "null"
     }
 }
