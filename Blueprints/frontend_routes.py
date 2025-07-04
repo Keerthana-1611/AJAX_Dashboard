@@ -768,36 +768,30 @@ def get_all_client_names():
         if 'conn' in locals(): conn.close()
 
 # Get All Mix Designs
-@frontend.route('/get_all_mix_design', methods=['GET'])
-def get_all_mix_design():
+@frontend.route('/get_mix_design', methods=['GET'])
+def get_mix_designs():
     try:
         conn = create_db_connection()
-        cursor = conn.cursor()
-
+        cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM mix_design")
-        rows = cursor.fetchall()
+        results = cursor.fetchall()
 
-        column_names = [desc[0] for desc in cursor.description]
-        result = [dict(zip(column_names, row)) for row in rows]
+        return jsonify({"success": True, "mix_designs": results})
 
-        return jsonify({"success": True, "mix_designs": result})
     except Exception as e:
-        return jsonify({"success": False, "mix_designs": [], "error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
+
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
 
-# Create New Mix Designs
+# Create Mix Design
 @frontend.route('/create_mix_design', methods=['POST'])
 def create_mix_design():
     try:
         data = request.get_json()
 
-        fields = [
-            'MixdesignName', 'Grade', 'MixingTime', '20MM', '10MM',
-            'R_Sand', 'C_Sand', 'MT', 'CMT1', 'CMT2',
-            'WTR1', 'ADM1', 'ADM2'
-        ]
+        fields = ['code', 'name', 'description', 'grade', 'action']
 
         if not all(field in data for field in fields):
             return jsonify({"success": False, "error": "Missing required fields"}), 400
@@ -813,57 +807,151 @@ def create_mix_design():
         cursor.execute(insert_query, values)
         conn.commit()
 
-        return jsonify({"success": True, "message": "Mix design created", "MixDesignID": cursor.lastrowid})
+        return jsonify({
+            "success": True,
+            "message": "Mix design created",
+            "MixDesignID": cursor.lastrowid 
+        })
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
 
-# Updating Existing Mix Design based on the MixDesignID
+# Update Mix Design
 @frontend.route('/update_mix_design', methods=['POST'])
 def update_mix_design():
     try:
         data = request.get_json()
-        mix_id = data.get('MixDesignID')
+        code = data.get('code')
 
-        if not mix_id:
-            return jsonify({"success": False, "error": "MixDesign ID (ID) is required"}), 400
+        if not code:
+            return jsonify({"success": False, "error": "code is required"}), 400
 
-        fields = [
-            'MixdesignName', 'Grade', 'MixingTime', '20MM', '10MM',
-            'R_Sand', 'C_Sand', 'MT', 'CMT1', 'CMT2',
-            'WTR1', 'ADM1', 'ADM2'
-        ]
-
-        updates = []
+        fields = ['name', 'description', 'grade', 'action']
+        update_fields = []
         values = []
 
         for field in fields:
             if field in data:
-                updates.append(f"`{field}` = %s")
+                update_fields.append(f"`{field}` = %s")
                 values.append(data[field])
 
-        if not updates:
-            return jsonify({"success": False, "error": "No fields to update"}), 400
+        if not update_fields:
+            return jsonify({"success": False, "error": "No fields provided to update"}), 400
 
         update_query = f"""
-            UPDATE mix_design SET {', '.join(updates)}
-            WHERE ID = %s
+            UPDATE mix_design
+            SET {', '.join(update_fields)}
+            WHERE code = %s
         """
-        values.append(mix_id)
+        values.append(code)
 
         conn = create_db_connection()
         cursor = conn.cursor()
         cursor.execute(update_query, values)
         conn.commit()
 
+        if cursor.rowcount == 0:
+            return jsonify({"success": False, "error": "No record found with the given code"}), 404
+
         return jsonify({"success": True, "message": "Mix design updated successfully"})
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
+
+# Get Mix Design BOM
+@frontend.route('/get_mix_design_with_bom/<int:id>', methods=['GET'])
+def get_mix_design_with_bom(id):
+    try:
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM mix_design WHERE id = %s", (id,))
+        mix = cursor.fetchone()
+
+        if not mix:
+            return jsonify({"success": False, "error": "Mix design not found"}), 404
+
+        cursor.execute("SELECT * FROM mix_design_bom WHERE product = %s", (id,))
+        bom_items = cursor.fetchall()
+
+        mix['bom'] = bom_items
+
+        return jsonify({"success": True, "data": mix})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Update Mix Design BOM
+@frontend.route('/update_mix_design_with_bom/<int:id>', methods=['POST'])
+def update_mix_design_with_bom(id):
+    try:
+        data = request.get_json()
+
+        required_fields = ['code', 'name', 'description', 'grade', 'action']
+        if not all(field in data for field in required_fields):
+            return jsonify({"success": False, "error": "Missing required mix design fields"}), 400
+
+        bom_items = data.get('bom', [])
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+
+        update_mix_query = """
+            UPDATE mix_design
+            SET code = %s, name = %s, description = %s, grade = %s, action = %s
+            WHERE id = %s
+        """
+        cursor.execute(update_mix_query, (
+            data['code'], data['name'], data['description'], data['grade'], data['action'], id
+        ))
+
+        cursor.execute("DELETE FROM mix_design_bom WHERE product = %s", (id,))
+
+        bom_insert_query = """
+            INSERT INTO mix_design_bom (
+                `product`, `materialCode`, `scaleType`, `maxValue`,
+                `binNumber`, `batching`, `short`, `tolerance`,
+                `uom`, `manual`
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        for item in bom_items:
+            cursor.execute(bom_insert_query, (
+                id,
+                item['materialCode'],
+                item['scaleType'],
+                item['maxValue'],
+                item['binNumber'],
+                item['batching'],
+                item['short'],
+                item['tolerance'],
+                item['uom'],
+                int(item['manual'])  
+            ))
+
+        conn.commit()
+
+        return jsonify({"success": True, "message": "Mix design and BOM updated successfully"})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
 
 '''
 #Allow you to delete the mix designs
@@ -1233,7 +1321,7 @@ def update_product_settings():
                 return jsonify({"success": False,"error": "'product_container_settings' must be a list"}), 400
 
             for item in product_container_settings:
-                required_keys = {"ID", "Product_Code", "Defination", "Large_Jog_Weight", "Large_Jog_Time", "Small_Jog_Time", "Weighting_Mode"}
+                required_keys = {"ID", "Product_Code", "Defination", "Large_Jog_Weight", "Large_Jog_Time", "Small_Jog_Time", "Small_Jog_Weight", "Weighting_Mode"}
                 if not required_keys.issubset(item.keys()):
                     return jsonify({"success": False,"error": f"Missing keys in product_container_settings item: {item}"}), 400
 
@@ -1243,6 +1331,7 @@ def update_product_settings():
                         Defination = %s,
                         Large_Jog_Weight = %s,
                         Large_Jog_Time = %s,
+                        Small_Jog_Weight = %s,
                         Small_Jog_Time = %s,
                         Weighting_Mode = %s
                     WHERE ID = %s
@@ -1251,6 +1340,7 @@ def update_product_settings():
                     item["Defination"],
                     float(item["Large_Jog_Weight"]),
                     float(item["Large_Jog_Time"]),
+                    float(item["Small_Jog_Weight"]),
                     float(item["Small_Jog_Time"]),
                     float(item["Weighting_Mode"]),
                     int(item["ID"])

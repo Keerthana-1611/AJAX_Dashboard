@@ -22,7 +22,7 @@ if getattr(sys, 'frozen', False):
     # Running in PyInstaller bundle
     BASE_PATH = sys._MEIPASS
 else:
-    # Running as script or unpacked
+    # Running as script or unpacked/
     BASE_PATH = os.getcwd()
 
 ICON_PATH = os.path.join(BASE_PATH,"logo","Ajax-Backend-logo.ico")

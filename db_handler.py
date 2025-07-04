@@ -113,6 +113,7 @@ def insert_default_container_settings():
                 "Defination": "CMT1",
                 "Large_Jog_Weight": 5.0,
                 "Large_Jog_Time": 1.0,
+                "Small_Jog_Weight": 0.5,
                 "Small_Jog_Time": 0.5,
                 "Weighting_Mode": 1
             },
@@ -121,6 +122,7 @@ def insert_default_container_settings():
                 "Defination": "CMT2",
                 "Large_Jog_Weight": 5.0,
                 "Large_Jog_Time": 1.0,
+                "Small_Jog_Weight": 0.5,
                 "Small_Jog_Time": 0.5,
                 "Weighting_Mode": 1
             },
@@ -129,6 +131,7 @@ def insert_default_container_settings():
                 "Defination": "CMT3",
                 "Large_Jog_Weight": 5.0,
                 "Large_Jog_Time": 1.0,
+                "Small_Jog_Weight": 0.5,
                 "Small_Jog_Time": 0.5,
                 "Weighting_Mode": 1
             },
@@ -137,6 +140,7 @@ def insert_default_container_settings():
                 "Defination": "WTR1",
                 "Large_Jog_Weight": 5.0,
                 "Large_Jog_Time": 1.0,
+                "Small_Jog_Weight": 0.5,
                 "Small_Jog_Time": 0.5,
                 "Weighting_Mode": 1
             },
@@ -145,6 +149,7 @@ def insert_default_container_settings():
                 "Defination": "ADT1",
                 "Large_Jog_Weight": 5.0,
                 "Large_Jog_Time": 1.0,
+                "Small_Jog_Weight": 0.5,
                 "Small_Jog_Time": 0.5,
                 "Weighting_Mode": 1
             },
@@ -153,6 +158,7 @@ def insert_default_container_settings():
                 "Defination": "ADT2",
                 "Large_Jog_Weight": 5.0,
                 "Large_Jog_Time": 1.0,
+                "Small_Jog_Weight": 0.5,
                 "Small_Jog_Time": 0.5,
                 "Weighting_Mode": 1
             },
@@ -160,7 +166,7 @@ def insert_default_container_settings():
 
         insert_container_sql = """
             INSERT INTO product_container_settings 
-            (Product_Code, Defination, Large_Jog_Weight, Large_Jog_Time, Small_Jog_Time, Weighting_Mode)
+            (Product_Code, Defination, Large_Jog_Weight, Large_Jog_Time, Small_Jog_Weight ,Small_Jog_Time, Weighting_Mode)
             VALUES (%s, %s, %s, %s, %s, %s)
         """
 
@@ -170,6 +176,7 @@ def insert_default_container_settings():
                 item['Defination'],
                 item['Large_Jog_Weight'],
                 item['Large_Jog_Time'],
+                item['Small_Jog_Weight'],
                 item['Small_Jog_Time'],
                 item['Weighting_Mode']
             ))
@@ -305,6 +312,7 @@ def create_tables():
                 Defination VARCHAR(255),
                 Large_Jog_Weight FLOAT,
                 Large_Jog_Time FLOAT,
+                Small_Jog_Weight FLOAT,
                 Small_Jog_Time FLOAT,
                 Weighting_Mode FLOAT
             )
@@ -328,21 +336,30 @@ def create_tables():
         """,
         'Mix_Design': """
             CREATE TABLE IF NOT EXISTS Mix_Design (
-                ID INT NOT NULL AUTO_INCREMENT,
-                MixdesignName VARCHAR(255) DEFAULT NULL,
-                Grade VARCHAR(255) DEFAULT NULL,
-                MixingTime FLOAT DEFAULT NULL,
-                `20MM` FLOAT DEFAULT NULL,
-                `10MM` FLOAT DEFAULT NULL,
-                R_Sand FLOAT DEFAULT NULL,
-                C_Sand FLOAT DEFAULT NULL,
-                MT FLOAT DEFAULT NULL,
-                CMT1 FLOAT DEFAULT NULL,
-                CMT2 FLOAT DEFAULT NULL,
-                WTR1 FLOAT DEFAULT NULL,
-                ADM1 FLOAT DEFAULT NULL,
-                ADM2 FLOAT DEFAULT NULL,
-                PRIMARY KEY (ID)
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `code` VARCHAR(225) NOT NULL,
+                `name` VARCHAR(225) NOT NULL,
+                `description` VARCHAR(225) NOT NULL,
+                `grade` VARCHAR(225) NOT NULL,
+                `action` TINYINT NOT NULL
+            )
+        """,
+
+        'Mix_Design_Bom':"""
+            CREATE TABLE IF NOT EXISTS`mix_design_bom` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `product` INT NOT NULL,
+                `materialCode` VARCHAR(225) NOT NULL,
+                `scaleType` VARCHAR(45) NOT NULL,
+                `maxValue` FLOAT NOT NULL,
+                `binNumber` INT NOT NULL,
+                `batching` INT NOT NULL,
+                `short` VARCHAR(225) NOT NULL,
+                `tolerance` INT NOT NULL,
+                `uom` VARCHAR(225) NOT NULL,
+                `manual` TINYINT NOT NULL,
+                PRIMARY KEY (`id`),
+                FOREIGN KEY (`product`) REFERENCES `mix_design`(`id`)
             )
         """,
        

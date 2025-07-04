@@ -9,5 +9,7 @@
     "half_discharge_time_g2": 6.0,
     "online_printing": false,
     "full_discharge_time_g2": 9.1,
-    "mixing_time" : 2.0
+    "mixing_time" : 2.0,
+    "grease_pump_on_time": 3.0,
+    "grease_pump_off_time": 4.0
 }
