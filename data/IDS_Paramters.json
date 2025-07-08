@@ -6,8 +6,8 @@
             "venus"
         ]
     },
-    "product_delay": 90.0,
-    "scale_stabilization_time": 2.0,
+    "product_delay": 60.0,
+    "scale_stabilization_time": 4.0,
     "mixer_operation": {
         "Selected": "Manual",
         "values": [

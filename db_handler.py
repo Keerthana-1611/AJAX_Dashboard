@@ -264,9 +264,9 @@ def create_tables():
         'ClientDetails':"""
             CREATE TABLE IF NOT EXISTS `client_details` (
                 `Client_ID` INT AUTO_INCREMENT PRIMARY KEY,
+                `Client_Code` VARCHAR(100),
                 `Client_Name` VARCHAR(100),
-                `Site` VARCHAR(100),
-                `Address` VARCHAR(100)
+                `Address` VARCHAR(100),
             );        
         """,
         
@@ -280,6 +280,17 @@ def create_tables():
                 FOREIGN KEY (Client_ID) REFERENCES client_details(Client_ID)
             );
         """,
+
+        'Site Details': """
+            CREATE TABLE IF NOT EXISTS site_details (
+                `Site_ID` INT AUTO_INCREMENT PRIMARY KEY,
+                `Client_ID` INT,
+                `Site_Name` VARCHAR(100) NOT NULL,
+                `Site_Code` VARCHAR(100) NOT NULL,
+                `Site_Address` VARCHAR(255) NOT NULL
+            );
+        """,
+
          'Sales_Order': """
             CREATE TABLE IF NOT EXISTS Sales_Order (
                 SalesOrderID INT AUTO_INCREMENT PRIMARY KEY,
@@ -292,8 +303,22 @@ def create_tables():
                 MixingTime FLOAT,
                 FOREIGN KEY (Client_ID) REFERENCES client_details(Client_ID)
             );
-
         """,
+
+        'Sales_Order_Bom': """
+            CREATE TABLE IF NOT EXISTS `sales_order_bom` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `mix_name` VARCHAR(225) NOT NULL,
+                `quantity` FLOAT NOT NULL,
+                `progress` FLOAT NOT NULL,
+                `site_name` VARCHAR(225) NOT NULL,
+                `site_address` VARCHAR(225) NOT NULL,
+                `vehicle` VARCHAR(225) NOT NULL,
+                `action` TINYINT NOT NULL,
+                PRIMARY KEY (`id`)
+            );
+        """,
+
         'Product_Settings': """
             CREATE TABLE IF NOT EXISTS Product_Settings (
                 ID INT AUTO_INCREMENT PRIMARY KEY,
@@ -341,26 +366,30 @@ def create_tables():
                 `name` VARCHAR(225) NOT NULL,
                 `description` VARCHAR(225) NOT NULL,
                 `grade` VARCHAR(225) NOT NULL,
-                `action` TINYINT NOT NULL
+                `action` TINYINT NOT NULL,
+                PRIMARY KEY (`id`)
             )
         """,
 
         'Mix_Design_Bom':"""
-            CREATE TABLE IF NOT EXISTS`mix_design_bom` (
+            CREATE TABLE IF NOT EXISTS mix_design_bom (
                 `id` INT NOT NULL AUTO_INCREMENT,
-                `product` INT NOT NULL,
-                `materialCode` VARCHAR(225) NOT NULL,
-                `scaleType` VARCHAR(45) NOT NULL,
-                `maxValue` FLOAT NOT NULL,
-                `binNumber` INT NOT NULL,
-                `batching` INT NOT NULL,
-                `short` VARCHAR(225) NOT NULL,
-                `tolerance` INT NOT NULL,
-                `uom` VARCHAR(225) NOT NULL,
-                `manual` TINYINT NOT NULL,
+                `mix_id` INT NOT NULL,
+                `Product_ID` INT NOT NULL,
+                `Batch_Number` INT NOT NULL,
+                `Bin_Number` INT NOT NULL,
+                `Material_Code` VARCHAR(225) NOT NULL,
+                `Max_Value` INT NOT NULL,
+                `Scale_Type` VARCHAR(225) NOT NULL,
+                `Short_Code` VARCHAR(225) NOT NULL,
+                `uom` INT NOT NULL,
+                `tolerance` VARCHAR(50) NOT NULL,
                 PRIMARY KEY (`id`),
-                FOREIGN KEY (`product`) REFERENCES `mix_design`(`id`)
-            )
+                CONSTRAINT `fk_bom_product` FOREIGN KEY (`Product_ID`)
+                    REFERENCES `config_bom_sec1`(`Product_ID`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE
+            );
         """,
        
         'Batches': """
@@ -397,7 +426,6 @@ def create_tables():
                 FOREIGN KEY (SalesOrderID) REFERENCES Sales_Order(SalesOrderID),
                 FOREIGN KEY (Batch_ID) REFERENCES Batches(Batch_ID)
             );
-
         """,
         'AlramHistory': """
             CREATE TABLE IF NOT EXISTS `alarm_history` (
@@ -466,7 +494,7 @@ def create_tables():
         """,
 
         'Permission_Settings': """
-            CREATE TABLE TABLE IF NOT EXISTS `qc_permission_settings` (
+            CREATE TABLE IF NOT EXISTS `qc_permission_settings` (
                 `ID` INT NOT NULL AUTO_INCREMENT,
                 `Channel_Description` VARCHAR(225) NOT NULL,
                 `Coarse_Feed` TINYINT NOT NULL,
@@ -522,7 +550,6 @@ def insert_alarm_record(alarm_type, message, source):
     try:
         conn = create_db_connection()
         cursor = conn.cursor()
-
         insert_query = """
             INSERT INTO alarm_history (Alarm_Type, Message, Source, Timestamp)
             VALUES (%s, %s, %s, %s)
@@ -533,7 +560,6 @@ def insert_alarm_record(alarm_type, message, source):
             source,
             datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         ))
-
         conn.commit()
         print("Alarm record inserted successfully.")
     except Exception as e:

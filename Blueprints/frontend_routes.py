@@ -4,6 +4,7 @@ from main import is_pendrive_connected
 import os
 import json
 from datetime import datetime
+from modbus_handler import update_values_to_plc
 import sys
 
 if getattr(sys, 'frozen', False):
@@ -225,29 +226,35 @@ def update_ids_parameters():
         return jsonify({"error": "File not found"}), 404
 
     try:
-        with open(file_path, 'r') as f:
-            original_data = json.load(f)
 
-        for key, value in updates.items():
-            if key not in original_data:
-                return jsonify({"error": f"Key '{key}' not found in original file"}), 400
+        if update_values_to_plc(updates):
 
-            expected_type = type(original_data[key])
+            with open(file_path, 'r') as f:
+                original_data = json.load(f)
 
-            # Allow int if original is float
-            if expected_type == float and isinstance(value, int):
-                value = float(value)
-            elif not isinstance(value, expected_type):
-                return jsonify({
-                    "error": f"Type mismatch for key '{key}'. Expected {expected_type.__name__}"
-                }), 400
+            for key, value in updates.items():
+                if key not in original_data:
+                    return jsonify({"error": f"Key '{key}' not found in original file"}), 400
 
-            original_data[key] = value
+                expected_type = type(original_data[key])
 
-        with open(file_path, 'w') as f:
-            json.dump(original_data, f, indent=4)
+                # Allow int if original is float
+                if expected_type == float and isinstance(value, int):
+                    value = float(value)
+                elif not isinstance(value, expected_type):
+                    return jsonify({
+                        "error": f"Type mismatch for key '{key}'. Expected {expected_type.__name__}"
+                    }), 400
 
-        return jsonify({"success": True, "message": "IDS Parameters updated successfully"})
+                original_data[key] = value
+
+            with open(file_path, 'w') as f:
+                json.dump(original_data, f, indent=4)
+
+            return jsonify({"success": True, "message": "IDS Parameters updated successfully"})
+        
+        else:
+            return jsonify({"success": False, "message": "IDS Parameters updated failed"})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -287,75 +294,83 @@ def update_operator_parameters():
         return jsonify({"error": "File not found"}), 404
 
     try:
-        # Load the original JSON
-        with open(file_path, 'r') as f:
-            original_data = json.load(f)
+        if update_values_to_plc(updates): 
+            # Load the original JSON
+            with open(file_path, 'r') as f:
+                original_data = json.load(f)
 
-        # Update file parameters, skipping "table_values"
-        for key, value in updates.items():
-            if key == "table_values":
-                continue  # Skip this key — only for DB update
+            # Update file parameters
+            for key, value in updates.items():
+                if key == "table_values":
+                    continue  # Skip DB-only values
 
-            if key not in original_data:
-                return jsonify({"error": f"Key '{key}' not found in original file"}), 400
+                if key not in original_data:
+                    return jsonify({"error": f"Key '{key}' not found in original file"}), 400
 
-            expected_type = type(original_data[key])
-            if expected_type == float and isinstance(value, int):
-                value = float(value)
-            elif not isinstance(value, expected_type):
-                return jsonify({
-                    "error": f"Type mismatch for key '{key}'. Expected {expected_type.__name__}"
-                }), 400
+                expected_type = type(original_data[key])
+                if expected_type == float and isinstance(value, int):
+                    value = float(value)
+                elif not isinstance(value, expected_type):
+                    return jsonify({
+                        "error": f"Type mismatch for key '{key}'. Expected {expected_type.__name__}"
+                    }), 400
 
-            original_data[key] = value
+                original_data[key] = value
 
-        # Write updated JSON back to file
-        with open(file_path, 'w') as f:
-            json.dump(original_data, f, indent=4)
+            # Write back the updated file
+            with open(file_path, 'w') as f:
+                json.dump(original_data, f, indent=4)
 
-        # Now update the database table if "table_values" is present
-        table_values = updates.get("table_values")
-        if table_values:
-            if not isinstance(table_values, list):
-                return jsonify({"error": "'table_values' must be a list"}), 400
+            # Handle table updates if provided
+            table_values = updates.get("table_values")
+            if table_values:
+                if not isinstance(table_values, list):
+                    return jsonify({"error": "'table_values' must be a list"}), 400
 
-            conn = create_db_connection()
-            if conn is None:
-                return jsonify({"error": "Database connection failed"}), 500
+                conn = create_db_connection()
+                if conn is None:
+                    return jsonify({"error": "Database connection failed"}), 500
 
-            cursor = conn.cursor()
-            update_query = """
-                UPDATE Operator_Parameters
-                SET Defination = %s,
-                    Flight_Weight = %s,
-                    Moisture = %s,
-                    Recalculate = %s,
-                    Tolerance = %s
-                WHERE ID = %s
-            """
+                cursor = conn.cursor()
+                update_query = """
+                    UPDATE Operator_Parameters
+                    SET Defination = %s,
+                        Flight_Weight = %s,
+                        Moisture = %s,
+                        Recalculate = %s,
+                        Tolerance = %s
+                    WHERE ID = %s
+                """
 
-            for row in table_values:
-                required_keys = {"Defination", "Flight_Weight", "Moisture", "Recalculate", "Tolerance", "ID"}
-                if not required_keys.issubset(row.keys()):
-                    return jsonify({"error": f"Missing keys in row: {row}"}), 400
+                for row in table_values:
+                    required_keys = {"Defination", "Flight_Weight", "Moisture", "Recalculate", "Tolerance", "ID"}
+                    if not required_keys.issubset(row.keys()):
+                        return jsonify({"error": f"Missing keys in row: {row}"}), 400
 
-                cursor.execute(update_query, (
-                    row["Defination"],
-                    float(row["Flight_Weight"]),
-                    float(row["Moisture"]),
-                    int(row["Recalculate"]),
-                    float(row["Tolerance"]),
-                    int(row["ID"])
-                ))
+                    cursor.execute(update_query, (
+                        row["Defination"],
+                        float(row["Flight_Weight"]),
+                        float(row["Moisture"]),
+                        int(row["Recalculate"]),
+                        float(row["Tolerance"]),
+                        int(row["ID"])
+                    ))
 
-            conn.commit()
-            cursor.close()
-            conn.close()
+                conn.commit()
+                cursor.close()
+                conn.close()
 
-        return jsonify({"success": True, "message": "Operator Parameters updated successfully"})
+            return jsonify({"success": True, "message": "Operator Parameters updated successfully"})
+
+        else:
+            return jsonify({"success": False, "message": "Operator Parameters update failed"})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
 
 # Get Plant Details
 @frontend.route('/get_plant_details', methods=['GET'])
@@ -442,34 +457,166 @@ def update_plant_parameters():
         return jsonify({"error": "File not found"}), 404
 
     try:
-        with open(file_path, 'r') as f:
-            original_data = json.load(f)
+        if update_values_to_plc(updates):
+            with open(file_path, 'r') as f:
+                original_data = json.load(f)
 
-        for key, value in updates.items():
-            if key not in original_data:
-                return jsonify({"error": f"Key '{key}' not found in original file"}), 400
+            for key, value in updates.items():
+                if key not in original_data:
+                    return jsonify({"error": f"Key '{key}' not found in original file"}), 400
 
-            expected_type = type(original_data[key])
+                expected_type = type(original_data[key])
 
-            # Allow int if original is float
-            if expected_type == float and isinstance(value, int):
-                value = float(value)
-            elif not isinstance(value, expected_type):
-                return jsonify({
-                    "error": f"Type mismatch for key '{key}'. Expected {expected_type.__name__}"
-                }), 400
+                # Allow int if original is float
+                if expected_type == float and isinstance(value, int):
+                    value = float(value)
+                elif not isinstance(value, expected_type):
+                    return jsonify({
+                        "error": f"Type mismatch for key '{key}'. Expected {expected_type.__name__}"
+                    }), 400
 
-            original_data[key] = value
+                original_data[key] = value
 
-        with open(file_path, 'w') as f:
-            json.dump(original_data, f, indent=4)
+            with open(file_path, 'w') as f:
+                json.dump(original_data, f, indent=4)
 
-        return jsonify({"success": True, "message": "Plant Parameter updated successfully"})
+            return jsonify({"success": True, "message": "Plant Parameter updated successfully"})
 
+        else:
+            return jsonify({"success": True, "message": "Plant Parameter updated failed"})
+        
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Gives the list of sales orders
+# Get Sales Order BOM
+@frontend.route('/get_sales_order_bom', methods=['GET'])
+def get_sales_order_bom_by_mix_name():
+    try:
+        mix_name = request.args.get('mix_name')  # Optional
+
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT 
+                sb.id,
+                sb.quantity,
+                sb.progress,
+                sb.site_name,
+                sb.site_address,
+                sb.vehicle,
+                sb.action,
+                sb.mix_name,
+                md.code AS mix_code
+            FROM sales_order_bom sb
+            LEFT JOIN mix_design md ON sb.mix_name = md.name
+        """
+
+        # Filter by mix_name if provided
+        if mix_name:
+            query += " WHERE sb.mix_name = %s"
+            cursor.execute(query, (mix_name,))
+        else:
+            cursor.execute(query)
+
+        rows = cursor.fetchall()
+
+        return jsonify({"success": True, "data": rows})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Updates Sales Order BOM
+@frontend.route('/update_sales_order_bom', methods=['POST'])
+def update_sales_order_bom():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "Missing JSON payload"}), 400
+
+        # Extract fields from request
+        bom_id = data.get('id') 
+        mix_name = data.get('mix_name')
+        quantity = data.get('quantity')
+        progress = data.get('progress')
+        site_name = data.get('site_name')
+        site_address = data.get('site_address')
+        vehicle = data.get('vehicle')
+        action = data.get('action')
+
+        # Basic validation
+        required_fields = [mix_name, quantity, progress, site_name, site_address, vehicle, action]
+        if any(field is None for field in required_fields):
+            return jsonify({"success": False, "error": "One or more required fields are missing"}), 400
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+
+        if bom_id:
+            cursor.execute("""
+                INSERT INTO sales_order_bom (
+                    id, mix_name, quantity, progress, site_name, site_address, vehicle, action
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    mix_name = VALUES(mix_name),
+                    quantity = VALUES(quantity),
+                    progress = VALUES(progress),
+                    site_name = VALUES(site_name),
+                    site_address = VALUES(site_address),
+                    vehicle = VALUES(vehicle),
+                    action = VALUES(action)
+            """, (bom_id, mix_name, quantity, progress, site_name, site_address, vehicle, action))
+        else:
+            # Insert new record (let AUTO_INCREMENT handle ID)
+            cursor.execute("""
+                INSERT INTO sales_order_bom (
+                    mix_name, quantity, progress, site_name, site_address, vehicle, action
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (mix_name, quantity, progress, site_name, site_address, vehicle, action))
+
+        conn.commit()
+        return jsonify({"success": True, "message": "Sales order BOM saved successfully."})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+# Get Sales order Mix_Bom List
+@frontend.route('/get_mix_design_bom_from_sales_order/<mix_name>', methods=['GET'])
+def get_mix_design_bom_from_sales_order(mix_name):
+    try:
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT b.*
+            FROM sales_order_bom s
+            JOIN mix_design m ON s.mix_name = m.name
+            JOIN mix_design_bom b ON b.mix_id = m.id
+            WHERE s.mix_name = %s
+        """
+        cursor.execute(query, (mix_name,))
+        result = cursor.fetchall()
+
+        return jsonify({"success": True, "data": result})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Get sales orders
 @frontend.route('/get_sales_orders', methods=['GET'])
 def get_sales_orders():
     try:
@@ -482,30 +629,20 @@ def get_sales_orders():
                 so.Mix_Name,
                 so.Client_ID,
                 cd.Client_Name,
-                cd.Site,
-                cd.Address,
+                # cd.Site,
+                # cd.Address,
                 so.`DateTime`,
                 so.Ordered_Qty,
                 so.Load_Qty,
                 so.Produced_Qty,
                 so.MixingTime,
-                md.ID AS MixDesignID,
-                md.MixdesignName,
-                md.Grade,
-                md.MixingTime AS DesignMixingTime,
-                md.`20MM`,
-                md.`10MM`,
-                md.R_Sand,
-                md.C_Sand,
-                md.MT,
-                md.CMT1,
-                md.CMT2,
-                md.WTR1,
-                md.ADM1,
-                md.ADM2
+                md.id AS MixDesignID,
+                md.name AS MixdesignName,
+                md.grade AS Grade
             FROM sales_order so
             LEFT JOIN client_details cd ON so.Client_ID = cd.Client_ID
-            LEFT JOIN mix_design md ON so.Mix_Name = md.MixdesignName
+            LEFT JOIN mix_design md ON so.Mix_Name = md.name
+
         """
         cursor.execute(query)
         rows = cursor.fetchall()
@@ -866,25 +1003,37 @@ def update_mix_design():
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
 
-# Get Mix Design BOM
-@frontend.route('/get_mix_design_with_bom/<int:id>', methods=['GET'])
-def get_mix_design_with_bom(id):
+# Get mix_design_bom
+@frontend.route('/get_mix_design_bom', methods=['GET'])
+def get_mix_design_with_or_without_id():
     try:
+        mix_id = request.args.get('id')  
+
         conn = create_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute("SELECT * FROM mix_design WHERE id = %s", (id,))
-        mix = cursor.fetchone()
+        if mix_id:
+            cursor.execute("SELECT * FROM mix_design WHERE id = %s", (mix_id,))
+            mix = cursor.fetchone()
 
-        if not mix:
-            return jsonify({"success": False, "error": "Mix design not found"}), 404
+            if not mix:
+                return jsonify({"success": False, "error": "Mix design not found"}), 404
 
-        cursor.execute("SELECT * FROM mix_design_bom WHERE product = %s", (id,))
-        bom_items = cursor.fetchall()
+            # Correct table and column
+            cursor.execute("SELECT * FROM mix_design_bom WHERE Mix_ID = %s", (mix_id,))
+            mix['bom'] = cursor.fetchall()
 
-        mix['bom'] = bom_items
+            return jsonify({"success": True, "data": mix})
+        
+        else:
+            cursor.execute("SELECT * FROM mix_design")
+            mix_designs = cursor.fetchall()
 
-        return jsonify({"success": True, "data": mix})
+            for mix in mix_designs:
+                # Correct table and column
+                cursor.execute("SELECT * FROM mix_design_bom WHERE Mix_ID = %s", (mix['id'],))
+                mix['bom'] = cursor.fetchall()
+            return jsonify({"success": True, "data": mix_designs})
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -894,56 +1043,64 @@ def get_mix_design_with_bom(id):
         if 'conn' in locals(): conn.close()
 
 # Update Mix Design BOM
-@frontend.route('/update_mix_design_with_bom/<int:id>', methods=['POST'])
-def update_mix_design_with_bom(id):
+@frontend.route('/update_mix_design_bom', methods=['POST'])
+def save_update_mix_design_bom():
     try:
         data = request.get_json()
+        if not data or 'data' not in data:
+            return jsonify({"success": False, "error": "Invalid input format"}), 400
 
-        required_fields = ['code', 'name', 'description', 'grade', 'action']
-        if not all(field in data for field in required_fields):
-            return jsonify({"success": False, "error": "Missing required mix design fields"}), 400
-
-        bom_items = data.get('bom', [])
+        bom_data = data['data']
+        bom_list = bom_data.get('bom', [])
 
         conn = create_db_connection()
         cursor = conn.cursor()
 
-        update_mix_query = """
-            UPDATE mix_design
-            SET code = %s, name = %s, description = %s, grade = %s, action = %s
-            WHERE id = %s
-        """
-        cursor.execute(update_mix_query, (
-            data['code'], data['name'], data['description'], data['grade'], data['action'], id
+        # Insert or update into update_mix_design_bom
+        cursor.execute("""
+            INSERT INTO mix_design (id, name, code, description, grade, action)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                name = VALUES(name),
+                code = VALUES(code),
+                description = VALUES(description),
+                grade = VALUES(grade),
+                action = VALUES(action)
+        """, (
+            bom_data.get('id'),
+            bom_data.get('name'),
+            bom_data.get('code'),
+            bom_data.get('description'),
+            bom_data.get('grade'),
+            bom_data.get('action')
         ))
 
-        cursor.execute("DELETE FROM mix_design_bom WHERE product = %s", (id,))
+        mix_id = bom_data.get('id')
 
-        bom_insert_query = """
-            INSERT INTO mix_design_bom (
-                `product`, `materialCode`, `scaleType`, `maxValue`,
-                `binNumber`, `batching`, `short`, `tolerance`,
-                `uom`, `manual`
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
+        # Optional: Clear old BOM items if updating
+        cursor.execute("DELETE FROM mix_design_bom WHERE mix_id = %s", (mix_id,))
 
-        for item in bom_items:
-            cursor.execute(bom_insert_query, (
-                id,
-                item['materialCode'],
-                item['scaleType'],
-                item['maxValue'],
-                item['binNumber'],
-                item['batching'],
-                item['short'],
-                item['tolerance'],
-                item['uom'],
-                int(item['manual'])  
+        # Insert BOM items into mix_design_bom
+        for item in bom_list:
+            cursor.execute("""
+                INSERT INTO mix_design_bom (
+                    mix_id, product_id, batch_number, bin_number,
+                    material_code, max_value, scale_type, short_code
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                mix_id,
+                item.get('Product_ID'),
+                item.get('Batch_Number'),
+                item.get('Bin_Number'),
+                item.get('Material_Code'),
+                item.get('Max_Value'),
+                item.get('Scale_Type'),
+                item.get('Short_Code')
             ))
 
         conn.commit()
-
-        return jsonify({"success": True, "message": "Mix design and BOM updated successfully"})
+        return jsonify({"success": True, "message": "Mix design and BOM items saved successfully."})
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -1599,14 +1756,14 @@ def add_client():
     try:
         data = request.get_json()
 
+        client_code = data.get('Client_Code')
         client_name = data.get('Client_Name')
-        site = data.get('Site')
         address = data.get('Address')
 
-        if not client_name or not site or not address:
+        if not client_code or not client_name or not address:
             return jsonify({
                 "success": False,
-                "error": "Client_Name, Site, and Address are required"
+                "error": "Client_Code, Client_Name, Address are required"
             }), 400
 
         conn = create_db_connection()
@@ -1623,10 +1780,10 @@ def add_client():
             }), 409
 
         insert_query = """
-            INSERT INTO client_details (Client_Name, Site, Address)
+            INSERT INTO client_details (Client_Code, Client_Name, Address)
             VALUES (%s, %s, %s)
         """
-        cursor.execute(insert_query, (client_name, site, address))
+        cursor.execute(insert_query, (client_code, client_name, address))
         conn.commit()
 
         return jsonify({
@@ -1644,7 +1801,7 @@ def add_client():
         if 'conn' in locals():
             conn.close()
 
-# Update Client Details
+#Update Client Details
 @frontend.route('/update_client_details', methods=['POST'])
 def update_client_details():
     try:
@@ -1654,11 +1811,10 @@ def update_client_details():
 
         if not data:
             return jsonify({"success": False, "error": "updates is required"}), 400
-        
         if not client_id:
             return jsonify({"success": False, "error": "Client_ID is required"}), 400
 
-        fields = ['Client_Name', 'Site', 'Address']
+        fields = ['Client_Code', 'Client_Name', 'Address']
 
         updates = []
         values = []
@@ -1671,31 +1827,36 @@ def update_client_details():
         if not updates:
             return jsonify({"success": False, "error": "No fields to update"}), 400
 
-        # Check for duplicate Client_Name (excluding this Client_ID)
-        if 'client_name' in data:
-            conn = create_db_connection()
-            cursor = conn.cursor()
+        conn = create_db_connection()
+        cursor = conn.cursor()
+
+        if 'Client_Name' in data:
             cursor.execute("""
                 SELECT Client_ID FROM client_details
                 WHERE LOWER(Client_Name) = LOWER(%s) AND Client_ID != %s
-            """, (data['client_name'], client_id))
-            duplicate = cursor.fetchone()
-            if duplicate:
+            """, (data['Client_Name'], client_id))
+            if cursor.fetchone():
                 return jsonify({
                     "success": False,
-                    "error": f"Client_Name '{data['client_name']}' already exists for another client"
+                    "error": f"Client_Name '{data['Client_Name']}' already exists for another client"
                 }), 409
-            cursor.close()
-            conn.close()
+
+        if 'Client_Code' in data:
+            cursor.execute("""
+                SELECT Client_ID FROM client_details
+                WHERE LOWER(Client_Code) = LOWER(%s) AND Client_ID != %s
+            """, (data['Client_Code'], client_id))
+            if cursor.fetchone():
+                return jsonify({
+                    "success": False,
+                    "error": f"Client_Code '{data['Client_Code']}' already exists for another client"
+                }), 409
 
         update_query = f"""
             UPDATE client_details SET {', '.join(updates)}
             WHERE Client_ID = %s
         """
         values.append(client_id)
-
-        conn = create_db_connection()
-        cursor = conn.cursor()
         cursor.execute(update_query, values)
         conn.commit()
 
@@ -1707,6 +1868,7 @@ def update_client_details():
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
+
 
 # Get details of all the clients
 @frontend.route('/get_all_clients', methods=['GET'])
@@ -1754,6 +1916,169 @@ def get_client_by_id():
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
+
+# Add Site
+@frontend.route('/add_site', methods=['POST'])
+def add_site():
+    try:
+        data = request.get_json()
+        name = data.get('site_name')
+        code = data.get('site_code')
+        address = data.get('site_address')
+        client_id = data.get('client_id')  
+
+        if not name or not code or not address or not client_id:
+            return jsonify({
+                "success": False,
+                "error": "site_name, site_code, site_address, client_id are required"
+            }), 400
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO site_details (Client_ID, Site_Name, Site_Code, Site_Address)
+            VALUES (%s, %s, %s, %s)
+        """, (client_id, name, code, address))
+        conn.commit()
+
+        return jsonify({"success": True, "message": "Site added successfully", "site_id": cursor.lastrowid})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Get all Site details
+@frontend.route('/get_all_sites', methods=['GET'])
+def get_all_sites():
+    try:
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM site_details")
+        sites = cursor.fetchall()
+
+        return jsonify({"success": True, "sites": sites})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Update Site details
+@frontend.route('/update_site', methods=['POST'])
+def update_site():
+    try:
+        data = request.get_json()
+        site_id = data.get('site_id')
+        name = data.get('site_name')
+        code = data.get('site_code')
+        address = data.get('site_address')
+
+        if not site_id:
+            return jsonify({"success": False, "error": "site_id is required"}), 400
+
+        updates = []
+        values = []
+
+        if name:
+            updates.append("Site_Name = %s")
+            values.append(name)
+        if code:
+            updates.append("Site_Code = %s")
+            values.append(code)
+        if address:
+            updates.append("Site_Address = %s")
+            values.append(address)
+
+        if not updates:
+            return jsonify({"success": False, "error": "No fields to update"}), 400
+
+        update_query = f"""
+            UPDATE site_details SET {', '.join(updates)} WHERE Site_ID = %s
+        """
+        values.append(site_id)
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(update_query, values)
+        conn.commit()
+
+        return jsonify({"success": True, "message": "Site updated successfully"})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Delete Site details
+@frontend.route('/delete_site', methods=['POST'])
+def delete_site():
+    try:
+        data = request.get_json()
+        site_id = data.get('site_id')
+
+        if not site_id:
+            return jsonify({"success": False, "error": "site_id is required"}), 400
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM site_details WHERE Site_ID = %s", (site_id,))
+        conn.commit()
+
+        return jsonify({"success": True, "message": "Site deleted successfully"})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# get_client_site_vehicles
+@frontend.route('/get_client_site_vehicles/<client_name>', methods=['GET'])
+def get_client_site_vehicles(client_name):
+    try:
+        if not client_name:
+            return jsonify({"success": False, "error": "client_name is required"}), 400
+
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT 
+                c.Client_ID,
+                c.Client_Name,
+                c.Client_Code,
+                c.Address AS Client_Address,
+                s.Site_ID,
+                s.Site_Name,
+                s.Site_Code,
+                s.Site_Address,
+                v.Vehicle_ID,
+                v.Vehicle_Type,
+                v.Vehicle_Quantity,
+                v.Vehicle_Number
+            FROM client_details c
+            LEFT JOIN site_details s ON c.Client_ID = s.Client_ID
+            LEFT JOIN vehicle_details v ON c.Client_ID = v.Client_ID
+            WHERE LOWER(TRIM(c.Client_Name)) = LOWER(TRIM(%s));
+        """
+        cursor.execute(query, (client_name,))
+        result = cursor.fetchall()
+
+        return jsonify({"success": True, "data": result})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
 
 # Add new vehicle
 @frontend.route('/add_vehicle', methods=['POST'])
@@ -2443,13 +2768,21 @@ def get_configuration_bom_sec1():
         conn = create_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute("SELECT * FROM config_bom_sec1")
+        # Modified query to exclude materials with Action = '0' in qc_control
+        cursor.execute(
+            """
+            SELECT cb1.* FROM config_bom_sec1 cb1
+            JOIN qc_control qc ON cb1.Material_Code = qc.Material_Code
+            WHERE qc.Action != '0'
+            """
+        )
         records = cursor.fetchall()
 
         return jsonify({"success": True, "config_bom_sec1": records})
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
@@ -2594,7 +2927,14 @@ def get_configuration_bom_sec2():
         conn = create_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute("SELECT * FROM config_bom_sec2")
+        # Modified query to exclude materials with Action = '0' in qc_control
+        cursor.execute(
+            """
+            SELECT cb2.* FROM config_bom_sec2 cb2
+            JOIN qc_control qc ON cb2.Material_Code = qc.Material_Code
+            WHERE qc.Action != '0'
+            """
+        )
         data = cursor.fetchall()
 
         return jsonify({"success": True, "config_bom_sec2": data})
@@ -2605,7 +2945,7 @@ def get_configuration_bom_sec2():
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
-
+        
 # Add QC_Calibration
 @frontend.route('/add_qc_calibration', methods=['POST'])
 def add_qc_calibration():

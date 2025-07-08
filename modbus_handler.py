@@ -180,6 +180,43 @@ def read_data(names: list, unit: int = 1) -> dict:
             result[name] = False if reg_type == "coil" else 0
     return result
 
+def update_values_to_plc(data : dict):
+    global MODBUS_REGISTRY
+    '''
+    "mixer_capacity": {
+        "register_type": "holding_register",
+        "address": 37912,
+        "value_type": "Float",
+        "inverse": false
+    },
+    '''
+    try:
+        instance = create_modbus_connection()
+        for key,value in data.items():
+            reg_details = MODBUS_REGISTRY.get(key)
+            if reg_details == None:
+                continue
+        
+            reg_type = reg_details.get("register_type")
+            value_type = reg_details.get("value_type")
+            reg_address = reg_details.get("address")
+            inverse = reg_details.get('inverse')
+            if reg_type == "holding_register":
+                if value_type == "Float":
+                    instance.write_float_register(address=reg_address,value=float(value),inverse=inverse,unit=1)
+                elif value_type == "U16":
+                    instance.write_single_holding_registers(address=reg_address,value=int(value),unit=1)
+                elif value_type == "U32":
+                    instance.write_U32_register(address=reg_address,value=int(value),inverse=inverse,unit=1)
+                elif value_type == "I32":
+                    instance.write_I32_register(address=reg_address,value=int(value),inverse=inverse,unit=1)            
+            elif reg_type == "coil":
+                instance.write_single_coil(address=reg_address,value=bool(value),unit=1)
+        return True
+    except Exception as e:
+        error = e
+        return False
+
 '''
 
 # Testing Manual Read 
