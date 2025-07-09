@@ -281,25 +281,25 @@
         "value_type": "U16",
         "inverse": false
     },
-    "Loading_Time_AGGREGATE": {
+    "Loading_Sequence_AGGREGATE": {
         "register_type": "holding_register",
         "address": 38014,
         "value_type": "U16",
         "inverse": false
     },
-    "Loading_Time_CEMENT": {
+    "Loading_Sequence_CEMENT": {
         "register_type": "holding_register",
         "address": 38015,
         "value_type": "U16",
         "inverse": false
     },
-    "Loading_Time_WATER": {
+    "Loading_Sequence_WATER": {
         "register_type": "holding_register",
         "address": 38016,
         "value_type": "U16",
         "inverse": false
     },
-    "Loading_Time_ADMIXTURES": {
+    "Loading_Sequence_ADMIXTURES": {
         "register_type": "holding_register",
         "address": 38017,
         "value_type": "U16",

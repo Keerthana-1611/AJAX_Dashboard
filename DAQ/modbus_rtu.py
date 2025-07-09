@@ -18,7 +18,7 @@ class ModbusSerialReader:
             self.client.connect()
             # self.status = self.client.connected
             # Verify device presence by reading 1 register from address 0
-            result = self.client.read_holding_registers(address=0, count=1, slave=self.slave_id)
+            result = self.client.read_holding_registers(address=37797, count=1, slave=self.slave_id)
             if result.isError():
                 self.client.close()
                 raise ConnectionError(f"Modbus device not responding at slave ID {self.slave_id}")

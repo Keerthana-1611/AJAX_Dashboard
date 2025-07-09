@@ -217,6 +217,112 @@ def update_values_to_plc(data : dict):
         error = e
         return False
 
+def write_db_values_to_plc(db_data: dict):
+    global MODBUS_REGISTRY
+    try:
+        print("[DEBUG] Entering write_db_values_to_plc")
+        print("[DEBUG] Input Data:", db_data)
+        print("[DEBUG] MODBUS_REGISTRY Keys:", list(MODBUS_REGISTRY.keys()))
+
+        instance = create_modbus_connection()
+        if not instance:
+            print("[ERROR] Failed to create Modbus connection instance")
+            return False
+
+        for key, value in db_data.items():
+            print(f"[DEBUG] Attempting to write key: {key}, value: {value}")
+            reg_info = MODBUS_REGISTRY.get(key)
+            if not reg_info:
+                print(f"[SKIPPED] Key '{key}' not found in MODBUS_REGISTRY")
+                continue
+
+            reg_type = reg_info.get("register_type")
+            value_type = reg_info.get("value_type")
+            address = reg_info.get("address")
+            inverse = reg_info.get("inverse", False)
+
+            print(f"[WRITE] Key: {key}, Addr: {address}, Type: {value_type}, Val: {value}")
+
+            if reg_type == "holding_register":
+                if value_type == "Float":
+                    instance.write_float_register(address=address, value=float(value), inverse=inverse, unit=1)
+                elif value_type == "U16":
+                    instance.write_single_holding_registers(address=address, value=int(value), unit=1)
+                elif value_type == "U32":
+                    instance.write_U32_register(address=address, value=int(value), inverse=inverse, unit=1)
+                elif value_type == "I32":
+                    instance.write_I32_register(address=address, value=int(value), inverse=inverse, unit=1)
+                elif value_type == "Double":
+                    instance.write_double_register(address=address, value=float(value), inverse=inverse, unit=1)
+                else:
+                    print(f"[UNSUPPORTED] Value type '{value_type}' for key '{key}'")
+            elif reg_type == "coil":
+                instance.write_single_coil(address=address, value=bool(value), unit=1)
+            else:
+                print(f"[UNSUPPORTED] Register type '{reg_type}' for key '{key}'")
+
+        return True
+    except Exception as e:
+        print(f"[ERROR] write_db_values_to_plc: {e}")
+        return False
+
+# Read_PLC_Values_to_DB
+def read_plc_values_to_db(keys_to_read: list = None):
+    global MODBUS_REGISTRY
+    try:
+        print("[DEBUG] Entering read_plc_values_to_db")
+
+        instance = create_modbus_connection()
+        if not instance:
+            print("[ERROR] Failed to create Modbus connection instance")
+            return None
+
+        read_data = {}
+
+        keys = keys_to_read if keys_to_read else MODBUS_REGISTRY.keys()
+
+        for key in keys:
+            reg_info = MODBUS_REGISTRY.get(key)
+            if not reg_info:
+                print(f"[SKIPPED] Key '{key}' not found in MODBUS_REGISTRY")
+                continue
+
+            reg_type = reg_info.get("register_type")
+            value_type = reg_info.get("value_type")
+            address = reg_info.get("address")
+            inverse = reg_info.get("inverse", False)
+
+            print(f"[READ] Key: {key}, Addr: {address}, Type: {value_type}")
+
+            if reg_type == "holding_register":
+                if value_type == "Float":
+                    value = instance.read_float_register(address=address, inverse=inverse, unit=1)
+                elif value_type == "U16":
+                    value = instance.read_single_holding_registers(address=address, unit=1)
+                elif value_type == "U32":
+                    value = instance.read_U32_register(address=address, inverse=inverse, unit=1)
+                elif value_type == "I32":
+                    value = instance.read_I32_register(address=address, inverse=inverse, unit=1)
+                elif value_type == "Double":
+                    value = instance.read_double_register(address=address, inverse=inverse, unit=1)
+                else:
+                    print(f"[UNSUPPORTED] Value type '{value_type}' for key '{key}'")
+                    continue
+            elif reg_type == "coil":
+                value = instance.read_single_coil(address=address, unit=1)
+            else:
+                print(f"[UNSUPPORTED] Register type '{reg_type}' for key '{key}'")
+                continue
+
+            read_data[key] = value
+
+        print("[DEBUG] Completed reading PLC values")
+        return read_data
+
+    except Exception as e:
+        print(f"[ERROR] read_plc_values_to_db: {e}")
+        return None
+
 '''
 
 # Testing Manual Read 

@@ -5,6 +5,8 @@ import os
 import json
 from datetime import datetime
 from modbus_handler import update_values_to_plc
+from modbus_handler import write_db_values_to_plc
+from modbus_handler import read_plc_values_to_db
 import sys
 
 if getattr(sys, 'frozen', False):
@@ -1109,7 +1111,6 @@ def save_update_mix_design_bom():
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
 
-
 '''
 #Allow you to delete the mix designs
 @frontend.route('/delete_mix_design', methods=['POST'])
@@ -1397,29 +1398,24 @@ def update_product_settings():
     updates = data.get('updates')
 
     if not isinstance(updates, dict):
-        return jsonify({"success": False,"error": "'updates' must be a dictionary"}), 400
+        return jsonify({"success": False, "error": "'updates' must be a dictionary"}), 400
 
     file_path = os.path.join(BASE_PATH, "data", "Product_Settings.json")
-
     if not os.path.isfile(file_path):
-        return jsonify({"success": False,"error": "File not found"}), 404
+        return jsonify({"success": False, "error": "File not found"}), 404
 
     try:
-        # Load current JSON file
         with open(file_path, 'r') as f:
             original_data = json.load(f)
 
-        # Keys to exclude from JSON file (these are stored in DB)
         skip_keys = {"product_settings", "product_container_settings"}
 
-        # Update values in JSON, excluding database-bound keys
+        # Update JSON file fields
         for key, value in updates.items():
             if key in skip_keys:
                 continue
-
             if key not in original_data:
                 return jsonify({"error": f"Key '{key}' not found in original file"}), 400
-
             expected_type = type(original_data[key])
             if expected_type == float and isinstance(value, int):
                 value = float(value)
@@ -1428,59 +1424,118 @@ def update_product_settings():
                     "success": False,
                     "error": f"Type mismatch for key '{key}'. Expected {expected_type.__name__}"
                 }), 400
-
             original_data[key] = value
 
-        # Save updated values back to JSON file
         with open(file_path, 'w') as f:
             json.dump(original_data, f, indent=4)
 
-        # Handle DB updates
         conn = create_db_connection()
         if conn is None:
-            return jsonify({"success": False,"error": "Database connection failed"}), 500
-        cursor = conn.cursor()
+            return jsonify({"success": False, "error": "Database connection failed"}), 500
+        cursor = conn.cursor(dictionary=True)
+
+        flat_data = {}
+
+        # Mapping Scales to material
+        scale_to_material = {
+            "Cement1": "CEMENT",
+            "Cement2": "CEMENT",
+            "Water": "WATER",
+            "Aggregate1": "AGGREGATE",
+            "Aggregate2": "AGGREGATE",
+            "Admixture": "ADMIXTURES",
+            "ADM1": "ADMIXTURES", 
+        }
 
         # Update product_settings table
         product_settings = updates.get("product_settings")
         if product_settings:
             if not isinstance(product_settings, list):
-                return jsonify({"success": False,"error": "'product_settings' must be a list"}), 400
+                return jsonify({"success": False, "error": "'product_settings' must be a list"}), 400
 
             for item in product_settings:
-                required_keys = {"ID", "Scales", "Dead_Weight", "Fill_time", "Discharge_time", "Loading_Sequence", "Jog_Close_Time"}
-                if not required_keys.issubset(item.keys()):
-                    return jsonify({"success": False,"error": f"Missing keys in product_settings item: {item}"}), 400
+                if "ID" not in item:
+                    return jsonify({"success": False, "error": "Each product_setting must include an ID"}), 400
 
-                cursor.execute("""
-                    UPDATE product_settings SET
-                        Scales = %s,
-                        Dead_Weight = %s,
-                        Fill_time = %s,
-                        Discharge_time = %s,
-                        Loading_Sequence = %s,
-                        Jog_Close_Time = %s
-                    WHERE ID = %s
-                """, (
-                    item["Scales"],
-                    float(item["Dead_Weight"]),
-                    float(item["Fill_time"]),
-                    float(item["Discharge_time"]),
-                    float(item["Loading_Sequence"]),
-                    float(item["Jog_Close_Time"]),
-                    int(item["ID"])
-                ))
+                columns = []
+                values = []
+
+                for col in ["Scales", "Dead_Weight", "Fill_time", "Discharge_time", "Loading_Sequence", "Jog_Close_Time"]:
+                    if col in item:
+                        columns.append(f"{col} = %s")
+                        values.append(item[col])
+
+                if columns:
+                    values.append(item["ID"])
+                    sql = f"UPDATE product_settings SET {', '.join(columns)} WHERE ID = %s"
+                    cursor.execute(sql, tuple(values))
+
+                # Dead_Weight
+                if "Dead_Weight" in item:
+                    scale = item.get("Scales")
+                    if not scale:
+                        cursor.execute("SELECT Scales FROM product_settings WHERE ID = %s", (item["ID"],))
+                        row = cursor.fetchone()
+                        scale = row["Scales"] if row else None
+                    if scale:
+                        material = scale_to_material.get(scale)
+                        if material:
+                            flat_key = f"Dead_Weight_{material}"
+                            flat_data[flat_key] = item["Dead_Weight"]
+
+                # Fill_time
+                if "Fill_time" in item:
+                    scale = item.get("Scales")
+                    if not scale:
+                        cursor.execute("SELECT Scales FROM product_settings WHERE ID = %s", (item["ID"],))
+                        row = cursor.fetchone()
+                        scale = row["Scales"] if row else None
+                    if scale:
+                        material = scale_to_material.get(scale)
+                        if material:
+                            flat_key = f"Filling_Time_{material}"
+                            flat_data[flat_key] = item["Fill_time"] 
+
+                # Discharge Fault
+                if "Discharge_Fault" in item:
+                    scale = item.get("Scales")
+                    if not scale:
+                        cursor.execute("SELECT Scales FROM product_settings WHERE ID = %s", (item["ID"],))
+                        row = cursor.fetchone()
+                        scale = row["Scales"] if row else None
+                    if scale:
+                        material = scale_to_material.get(scale)
+                        if material:
+                            flat_key = f"{material} DISCHARGE FAULT"
+                            flat_data[flat_key] = bool(item["Discharge_Fault"])
+                                
+                # Loading_Sequence
+                if "Loading_Sequence" in item:
+                    scale = item.get("Scales")
+                    if not scale:
+                        cursor.execute("SELECT Scales FROM product_settings WHERE ID = %s", (item["ID"],))
+                        row = cursor.fetchone()
+                        scale = row["Scales"] if row else None
+                    if scale:
+                        material = scale_to_material.get(scale)
+                        if material:
+                            flat_key = f"Loading_Sequence_{material}"
+                            flat_data[flat_key] = int(item["Loading_Sequence"])
 
         # Update product_container_settings table
         product_container_settings = updates.get("product_container_settings")
         if product_container_settings:
             if not isinstance(product_container_settings, list):
-                return jsonify({"success": False,"error": "'product_container_settings' must be a list"}), 400
+                return jsonify({"success": False, "error": "'product_container_settings' must be a list"}), 400
 
             for item in product_container_settings:
-                required_keys = {"ID", "Product_Code", "Defination", "Large_Jog_Weight", "Large_Jog_Time", "Small_Jog_Time", "Small_Jog_Weight", "Weighting_Mode"}
+                required_keys = {
+                    "ID", "Product_Code", "Defination",
+                    "Large_Jog_Weight", "Large_Jog_Time",
+                    "Small_Jog_Time", "Small_Jog_Weight", "Weighting_Mode"
+                }
                 if not required_keys.issubset(item.keys()):
-                    return jsonify({"success": False,"error": f"Missing keys in product_container_settings item: {item}"}), 400
+                    return jsonify({"success": False, "error": f"Missing keys in product_container_settings item: {item}"}), 400
 
                 cursor.execute("""
                     UPDATE product_container_settings SET
@@ -1507,10 +1562,24 @@ def update_product_settings():
         cursor.close()
         conn.close()
 
-        return jsonify({"success": True, "message": "Product settings updated successfully"})
+        if flat_data:
+            print("[INFO] Writing to PLC:", flat_data)
+            success = write_db_values_to_plc(flat_data)
+            if not success:
+                return jsonify({"success": False, "error": "Failed to write values to PLC"})
+
+            plc_readback = read_plc_values_to_db(flat_data.keys())
+            return jsonify({
+                "success": True,
+                "message": "Product settings updated successfully",
+                "plc_values": plc_readback
+            })
+
+        return jsonify({"success": True, "message": "Product settings updated successfully", "plc_values": {}})
+
 
     except Exception as e:
-        return jsonify({"success": False,"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 # Gets the alarm history based on the give date range
 @frontend.route('/get_alarm_history', methods=['POST'])
@@ -1922,15 +1991,15 @@ def get_client_by_id():
 def add_site():
     try:
         data = request.get_json()
-        name = data.get('site_name')
-        code = data.get('site_code')
-        address = data.get('site_address')
-        client_id = data.get('client_id')  
+        name = data.get('Site_Name')
+        code = data.get('Site_Code')
+        address = data.get('Site_Address')
+        client_id = data.get('Client_ID')  
 
         if not name or not code or not address or not client_id:
             return jsonify({
                 "success": False,
-                "error": "site_name, site_code, site_address, client_id are required"
+                "error": "Site_Name, Site_Code, Site_Address, Client_ID are required"
             }), 400
 
         conn = create_db_connection()
@@ -1972,13 +2041,13 @@ def get_all_sites():
 def update_site():
     try:
         data = request.get_json()
-        site_id = data.get('site_id')
-        name = data.get('site_name')
-        code = data.get('site_code')
-        address = data.get('site_address')
+        site_id = data.get('Site_ID')
+        name = data.get('Site_Name')
+        code = data.get('Site_Code')
+        address = data.get('Site_Address')
 
         if not site_id:
-            return jsonify({"success": False, "error": "site_id is required"}), 400
+            return jsonify({"success": False, "error": "Site_ID is required"}), 400
 
         updates = []
         values = []
@@ -2019,10 +2088,10 @@ def update_site():
 def delete_site():
     try:
         data = request.get_json()
-        site_id = data.get('site_id')
+        site_id = data.get('Site_ID')
 
         if not site_id:
-            return jsonify({"success": False, "error": "site_id is required"}), 400
+            return jsonify({"success": False, "error": "Site_ID is required"}), 400
 
         conn = create_db_connection()
         cursor = conn.cursor()
@@ -2058,6 +2127,7 @@ def get_client_site_vehicles(client_name):
                 s.Site_Code,
                 s.Site_Address,
                 v.Vehicle_ID,
+                v.Vehicle_Code,
                 v.Vehicle_Type,
                 v.Vehicle_Quantity,
                 v.Vehicle_Number
@@ -2087,21 +2157,22 @@ def add_vehicle():
         data = request.get_json()
 
         client_id = data.get('Client_ID')
+        vehicle_code = data.get('Vehicle_Code')
         vehicle_type = data.get('Vehicle_Type')
         vehicle_quantity = data.get('Vehicle_Quantity')
         vehicle_number = data.get('Vehicle_Number')
 
-        if not client_id or not vehicle_type or not vehicle_quantity or not vehicle_number:
-            return jsonify({"success": False, "error": "All fields (Client_ID, Vehicle_Type, Vehicle_Quantity, Vehicle_Number) are required"}), 400
+        if not client_id or not vehicle_code or not vehicle_type or not vehicle_quantity or not vehicle_number:
+            return jsonify({"success": False, "error": "All fields (Client_ID, Vehicle_Code, Vehicle_Type, Vehicle_Quantity, Vehicle_Number) are required"}), 400
 
         conn = create_db_connection()
         cursor = conn.cursor()
 
         insert_query = """
-            INSERT INTO vehicle_details (Client_ID, Vehicle_Type, Vehicle_Quantity, Vehicle_Number)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO vehicle_details (Client_ID, Vehicle_Code, Vehicle_Type, Vehicle_Quantity, Vehicle_Number)
+            VALUES (%s, %s, %s, %s, %s)
         """
-        cursor.execute(insert_query, (client_id, vehicle_type, vehicle_quantity, vehicle_number))
+        cursor.execute(insert_query, (client_id, vehicle_code, vehicle_type, vehicle_quantity, vehicle_number))
         conn.commit()
 
         return jsonify({
@@ -2164,7 +2235,7 @@ def update_vehicle():
 def delete_vehicle():
     try:
         data = request.get_json()
-        vehicle_ids = data.get('Vehicle_ID')
+        vehicle_ids = data.get('Vehicle_ID')  
 
         if not vehicle_ids or not isinstance(vehicle_ids, list):
             return jsonify({"success": False, "error": "Vehicle_ID (list) is required"}), 400
@@ -2172,13 +2243,15 @@ def delete_vehicle():
         conn = create_db_connection()
         cursor = conn.cursor()
 
-        # Convert list to comma-separated placeholders
         placeholders = ','.join(['%s'] * len(vehicle_ids))
 
-        # Delete associated records from transport_log
-        cursor.execute(f"DELETE FROM transport_log WHERE Truck_ID IN ({placeholders})", tuple(vehicle_ids))
+        cursor.execute(f"SELECT Vehicle_Number FROM vehicle_details WHERE Vehicle_ID IN ({placeholders})", tuple(vehicle_ids))
+        truck_numbers = [row[0] for row in cursor.fetchall()]
 
-        # Delete from vehicle_details
+        if truck_numbers:
+            truck_placeholders = ','.join(['%s'] * len(truck_numbers))
+            cursor.execute(f"DELETE FROM transport_log WHERE Truck_Number IN ({truck_placeholders})", tuple(truck_numbers))
+
         cursor.execute(f"DELETE FROM vehicle_details WHERE Vehicle_ID IN ({placeholders})", tuple(vehicle_ids))
 
         conn.commit()
@@ -2771,9 +2844,11 @@ def get_configuration_bom_sec1():
         # Modified query to exclude materials with Action = '0' in qc_control
         cursor.execute(
             """
-            SELECT cb1.* FROM config_bom_sec1 cb1
-            JOIN qc_control qc ON cb1.Material_Code = qc.Material_Code
-            WHERE qc.Action != '0'
+            SELECT cb1.* 
+            FROM config_bom_sec1 cb1
+            LEFT JOIN qc_control qc 
+            ON TRIM(LOWER(cb1.Material_Code)) = TRIM(LOWER(qc.Material_Code))
+            WHERE cb1.Action != '0'
             """
         )
         records = cursor.fetchall()
@@ -2927,12 +3002,31 @@ def get_configuration_bom_sec2():
         conn = create_db_connection()
         cursor = conn.cursor(dictionary=True)
 
+        cursor.execute("SELECT * FROM config_bom_sec2")
+        data = cursor.fetchall()
+
+        return jsonify({"success": True, "config_bom_sec2": data})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+'''@frontend.route('/get_configuration_bom_sec2', methods=['GET'])
+def get_configuration_bom_sec2():
+    try:
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
         # Modified query to exclude materials with Action = '0' in qc_control
         cursor.execute(
             """
-            SELECT cb2.* FROM config_bom_sec2 cb2
-            JOIN qc_control qc ON cb2.Material_Code = qc.Material_Code
-            WHERE qc.Action != '0'
+            SELECT cb2.*, qc.Action
+            FROM config_bom_sec2 cb2
+            LEFT JOIN qc_control qc ON TRIM(LOWER(cb2.Material_Code)) = TRIM(LOWER(qc.Material_Code))
+            WHERE qc.Action IS NULL OR qc.Action != '0';
             """
         )
         data = cursor.fetchall()
@@ -2944,7 +3038,7 @@ def get_configuration_bom_sec2():
 
     finally:
         if 'cursor' in locals(): cursor.close()
-        if 'conn' in locals(): conn.close()
+        if 'conn' in locals(): conn.close() '''
         
 # Add QC_Calibration
 @frontend.route('/add_qc_calibration', methods=['POST'])
@@ -3000,7 +3094,7 @@ def add_qc_calibration():
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
 
-# Update QC Calibration
+# Update QC_Calibration
 @frontend.route('/update_qc_calibration', methods=['POST'])
 def update_qc_calibration():
     try:
@@ -3045,7 +3139,7 @@ def update_qc_calibration():
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
 
-# Get All QC Calibration
+# Get All QC_Calibration
 @frontend.route('/get_qc_calibration', methods=['GET'])
 def get_qc_calibration():
     try:

@@ -274,6 +274,7 @@ def create_tables():
             CREATE TABLE IF NOT EXISTS `vehicle_details` (
                 `Vehicle_ID` INT AUTO_INCREMENT PRIMARY KEY,
                 `Client_ID` INT,
+                `Vehicle_Code` VARCHAR(100),
                 `Vehicle_Type` VARCHAR(100),
                 `Vehicle_Quantity` VARCHAR(100),
                 `Vehicle_Number` VARCHAR(100),
