@@ -1,12 +1,10 @@
-from flask import Blueprint, request, jsonify
-from db_handler import create_db_connection
+from flask import Blueprint, request, jsonify,session,render_template
+from db_handler import create_db_connection,update_alarm_datetime,get_alarm_message_by_id
 from main import is_pendrive_connected
 import os
 import json
 from datetime import datetime
-from modbus_handler import update_values_to_plc
-from modbus_handler import write_db_values_to_plc
-from modbus_handler import read_plc_values_to_db
+from modbus_handler import *
 import sys
 
 if getattr(sys, 'frozen', False):
@@ -20,7 +18,12 @@ frontend = Blueprint('frontend', __name__)
 
 @frontend.route('/',methods=['GET'])
 def home():
-    return " Home Page"
+    return render_template('Home Page.html')
+
+# Return Current Users name with session
+@frontend.route('/get_current_user',methods=['GET'])
+def get_current_user():
+    return {'username': session.get('username',"unknown")}
 
 # Gives the status of the licene key
 @frontend.route('/licence_key_connected',methods=['GET'])
@@ -3219,3 +3222,102 @@ def qc_get_permission_settings():
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
+
+
+@frontend.route('/alarm_terminate',methods=['POST'])
+def alarm_terminate():
+    data = request.get_json()
+
+    if not data or 'alarm_id' not in data:
+        return jsonify({"error": "alarm_id is required"}), 400
+
+    alarm_id = data['alarm_id']
+    terminate_result = write_terminate()
+    if terminate_result:
+        # result = update_alarm_datetime(alarm_id, 'Accept_datetime')
+        return handle_alarm_response('success', alarm_id, action='terminate')
+    else:
+        return handle_alarm_response("error", alarm_id, action='error')
+
+
+def handle_alarm_response(result, alarm_id, action):
+    if result == "success":
+        return jsonify({
+            "success": True,
+            "status": f"{action}d",
+            "alarm_id": alarm_id
+        }), 200
+    elif result == "already_done":
+        return jsonify({
+            "success": False,
+            "status": f"already {action}d",
+            "alarm_id": alarm_id
+        }), 200
+    elif result == "not_found":
+        return jsonify({
+            "success": False,
+            "error": "No alarm found with that ID"
+        }), 404
+    else:
+        return jsonify({
+            "success": False,
+            "error": f"Failed to {action} alarm"
+        }), 500
+
+@frontend.route('/acknowledge_alarm', methods=['POST'])
+def acknowledge_alarm():
+    try:
+        data = request.get_json()
+
+        if not data or 'alarm_id' not in data:
+            return jsonify({"error": "alarm_id is required"}), 400
+
+        alarm_id = data['alarm_id']
+
+        # Step 1: Get the alarm message/key
+        alarm_key = get_alarm_message_by_id(alarm_id)
+        if not alarm_key:
+            return handle_alarm_response('not_found', alarm_id, action='acknowledge')
+
+        # Step 2: Try to clear the alarm (set to 0, remove from active set)
+        clear_result = clear_alarm(alarm_key)
+        if not clear_result:
+            return jsonify({
+                "success": False,
+                "error": f"Failed to clear alarm '{alarm_key}' on Modbus or registry missing."
+            }), 500
+
+        # Step 3: Update acknowledge timestamp
+        result = update_alarm_datetime(alarm_id, 'Acknowledge_datetime')
+        return handle_alarm_response(result, alarm_id, action='acknowledge')
+
+    except Exception as e:
+        print(f"❌ Exception in /acknowledge_alarm: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@frontend.route('/accept_alarm', methods=['POST'])
+def accept_alarm():
+    data = request.get_json()
+
+    if not data or 'alarm_id' not in data:
+        return jsonify({"error": "alarm_id is required"}), 400
+
+    alarm_id = data['alarm_id']
+    accepted_result = write_accept()
+    if accepted_result:
+        result = update_alarm_datetime(alarm_id, 'Accept_datetime')
+        return handle_alarm_response(result, alarm_id, action='accept')
+    else:
+        return handle_alarm_response("error", alarm_id, action='error')
+
+@frontend.route('/normalize_alarm', methods=['POST'])
+def normalize_alarm():
+    data = request.get_json()
+
+    if not data or 'alarm_id' not in data:
+        return jsonify({"error": "alarm_id is required"}), 400
+
+    alarm_id = data['alarm_id']
+    result = update_alarm_datetime(alarm_id, 'Normalise_datetime')
+
+    return handle_alarm_response(result, alarm_id, action='normalize')

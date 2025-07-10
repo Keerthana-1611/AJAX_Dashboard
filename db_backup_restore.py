@@ -62,11 +62,6 @@ def restore_database(backup_file):
         print(f"❌ Exception during restore: {e}")
 
 
-
-
-
-
-backup_database()
 '''
 Example Usage"
 Backuping the entire schema with the database call the function below.

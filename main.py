@@ -26,8 +26,8 @@ def list_usb_serials():
         print("PNP ID:", usb.PNPDeviceID)
         print("-" * 40)
 
-# list_usb_serials()
-print("Pendrive is present: ",is_pendrive_connected('ABC00253'))
-print("Converter presenr ? > ",find_com_port_by_name("FTDI"))
+# # list_usb_serials()
+# print("Pendrive is present: ",is_pendrive_connected('ABC00253'))
+# print("Converter presenr ? > ",find_com_port_by_name("FTDI"))
 
 

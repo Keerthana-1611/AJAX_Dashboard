@@ -570,6 +570,100 @@ def insert_alarm_record(alarm_type, message, source):
             cursor.close()
             conn.close()
 
+
+
+# ---------------- ALARM HANDLING FUNCTIONS EVENTS ----------------
+
+
+def insert_alarm(message, user='Unknown'):
+    now = datetime.now()
+    query = """
+        INSERT INTO alarm_history (Alarm_Type, Message, Event_datetime, User)
+        VALUES (%s, %s, %s, %s)
+    """
+    values = (message, message, now, user)
+
+    conn = create_db_connection()  # Your DB connection helper
+    cursor = conn.cursor()
+    cursor.execute(query, values)
+    conn.commit()
+
+    alarm_id = cursor.lastrowid  # Get auto-incremented ID
+    cursor.close()
+    conn.close()
+
+    return {
+        "alarm_id": alarm_id,
+        "message": message,
+        "event_datetime": now.strftime('%Y-%m-%d %H:%M:%S')
+    }
+
+def update_alarm_datetime(alarm_id, field):
+    """
+    Update the specified datetime field if not already set.
+    field: 'Acknowledge_datetime', 'Accept_datetime', or 'Normalize_datetime'
+    """
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    conn = create_db_connection()
+    cursor = conn.cursor()
+
+    # Step 1: Check if alarm exists
+    check_query = f"SELECT {field} FROM alarm_history WHERE ID = %s"
+    cursor.execute(check_query, (alarm_id,))
+    result = cursor.fetchone()
+
+    if not result:
+        cursor.close()
+        conn.close()
+        return "not_found"
+
+    if result[0] is not None:
+        cursor.close()
+        conn.close()
+        return "already_done"
+
+    # Step 2: Update the datetime field
+    update_query = f"""
+        UPDATE alarm_history
+        SET {field} = %s
+        WHERE ID = %s
+    """
+    cursor.execute(update_query, (now, alarm_id))
+    conn.commit()
+    updated = cursor.rowcount
+
+    cursor.close()
+    conn.close()
+
+    return "success" if updated > 0 else "update_failed"
+
+def get_alarm_message_by_id(alarm_id):
+    """
+    Fetch the alarm message from the alarm_history table using the alarm ID.
+    Returns the message if found, or None if not found.
+    """
+    conn = create_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        query = "SELECT Message FROM alarm_history WHERE ID = %s"
+        cursor.execute(query, (alarm_id,))
+        result = cursor.fetchone()
+
+        if result:
+            return result[0]  # The message
+        else:
+            return None
+
+    except Exception as e:
+        print(f"Error fetching alarm message: {e}")
+        return None
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
 # ---------- Run It ----------
 if __name__ == "__main__":
     setup_database_and_tables()
