@@ -2,12 +2,13 @@
 from flask import request, Blueprint
 from threading import Lock
 from modbus_handler import start_thread as plc_thread
-from modbus_handler import MODBUS_REGISTRY
+from modbus_handler import ACTIVE_ALARMS,PREVIOUS_ALARM_STATE
+from db_handler import insert_alarm
 import random
 import sys
 import os
 from flask_socketio import SocketIO
-
+from modbus_handler import read_alarm
 
 if getattr(sys, 'frozen', False):
     # Running in PyInstaller bundle
@@ -19,7 +20,7 @@ else:
 
 # Create Blueprint
 socket_communications = Blueprint('socket_communications', __name__)
-socketio = SocketIO()
+socketio = SocketIO(manage_session=False)
 
 # Client tracking
 client_threads = {}
@@ -68,3 +69,57 @@ def random_thread(sid):
                                        "somthing": 23}, to=sid, namespace='/random_socket')
         socketio.sleep(0.0)
     print(f"🛑 Random thread stopped for {sid}")
+
+
+# ---------------- ALARM SOCKET EVENTS ----------------
+
+def process_alarms(data: dict, user: str = 'Unknown'):
+    global ACTIVE_ALARMS, PREVIOUS_ALARM_STATE
+
+    new_alarms = []
+
+    for key, value in data.items():
+        prev_value = PREVIOUS_ALARM_STATE.get(key, False)
+
+        # Only insert if the value changes from False → True
+        if value is True and prev_value is False:
+            alarm_record = insert_alarm(key, user=user)
+            new_alarms.append(alarm_record)
+            ACTIVE_ALARMS.add(key)
+
+        # Update the stored value
+        PREVIOUS_ALARM_STATE[key] = value
+
+    return new_alarms
+
+def alarm_manager(sid, username):
+    global ACTIVE_ALARMS
+    while client_threads.get(sid, False):
+        data = read_alarm()
+        new_alarms= process_alarms(data, username)
+        # new_alarms = []
+    
+        if new_alarms:
+            socketio.emit('alarm_data', {
+                "new_alarms": new_alarms
+            }, to=sid, namespace='/alarm_events')
+
+        # socketio.sleep(0.2)
+
+    print(f"🛑 Alarm thread stopped for {sid}")
+
+@socketio.on('connect', namespace='/alarm_events')
+def handle_plc_connect():
+    username = request.args.get('username', 'Unknown')
+    sid = request.sid
+    print(f"✅ Alarm thread Client connected: {sid}")
+    client_threads[sid] = True
+    socketio.start_background_task(alarm_manager, sid,username)
+
+
+@socketio.on('disconnect', namespace='/alarm_events')
+def handle_plc_disconnect():
+    sid = request.sid
+    client_threads[sid] = False
+    client_threads.pop(sid, None) 
+    print(f"❌ Alarm thread Client disconnected: {sid}")

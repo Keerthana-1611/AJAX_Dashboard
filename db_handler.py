@@ -297,12 +297,11 @@ def create_tables():
                 SalesOrderID INT AUTO_INCREMENT PRIMARY KEY,
                 Mix_Name VARCHAR(100),
                 Client_ID INT,
+                `DateTime` DATETIME,
                 Ordered_Qty FLOAT,
                 Load_Qty FLOAT,
                 Produced_Qty FLOAT,
                 MixingTime FLOAT,
-                Site_Name VARCHAR(225),
-                Vehicle_Number VARCHAR(50),
                 FOREIGN KEY (Client_ID) REFERENCES client_details(Client_ID)
             );
         """,
@@ -316,7 +315,7 @@ def create_tables():
                 `site_name` VARCHAR(225) NOT NULL,
                 `site_address` VARCHAR(225) NOT NULL,
                 `vehicle` VARCHAR(225) NOT NULL,
-                `action` INT NOT NULL,
+                `action` TINYINT NOT NULL,
                 PRIMARY KEY (`id`)
             );
         """,
@@ -368,41 +367,30 @@ def create_tables():
                 `name` VARCHAR(225) NOT NULL,
                 `description` VARCHAR(225) NOT NULL,
                 `grade` VARCHAR(225) NOT NULL,
-                `action` INT NOT NULL,
+                `action` TINYINT NOT NULL,
                 PRIMARY KEY (`id`)
             )
         """,
 
         'Mix_Design_Bom':"""
-        CREATE TABLE mix_design_bom (
-            id INT NOT NULL AUTO_INCREMENT,
-            Batch_Number INT NOT NULL,
-            Bin_Number INT NOT NULL,
-            Material_Code VARCHAR(225) NOT NULL,
-            Max_Value INT NOT NULL,
-            Scale_Type VARCHAR(225) NOT NULL,
-            Short_Code VARCHAR(225) NOT NULL,
-            uom VARCHAR(50) NOT NULL,
-            tolerance INT NOT NULL,
-            PRIMARY KEY (id)
-
-            # CREATE TABLE IF NOT EXISTS mix_design_bom (
-            #     `id` INT NOT NULL AUTO_INCREMENT,
-            #     `Batch_Number` INT NOT NULL,
-            #     `Bin_Number` INT NOT NULL,
-            #     `Material_Code` VARCHAR(225) NOT NULL,
-            #     `Max_Value` INT NOT NULL,
-            #     `Scale_Type` VARCHAR(225) NOT NULL,
-            #     `Short_Code` VARCHAR(225) NOT NULL,
-            #     `uom` VARCHAR(50) NOT NULL,
-            #     `tolerance` INT NOT NULL,
-            #     PRIMARY KEY (`id`),
-            #     CONSTRAINT `fk_bom_product` FOREIGN KEY (`Product_ID`)
-            #         REFERENCES `config_bom_sec1`(`Product_ID`)
-            #         ON DELETE CASCADE
-            #         ON UPDATE CASCADE
-            # );
-            
+            CREATE TABLE IF NOT EXISTS mix_design_bom (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `mix_id` INT NOT NULL,
+                `Product_ID` INT NOT NULL,
+                `Batch_Number` INT NOT NULL,
+                `Bin_Number` INT NOT NULL,
+                `Material_Code` VARCHAR(225) NOT NULL,
+                `Max_Value` INT NOT NULL,
+                `Scale_Type` VARCHAR(225) NOT NULL,
+                `Short_Code` VARCHAR(225) NOT NULL,
+                `uom` INT NOT NULL,
+                `tolerance` VARCHAR(50) NOT NULL,
+                PRIMARY KEY (`id`),
+                CONSTRAINT `fk_bom_product` FOREIGN KEY (`Product_ID`)
+                    REFERENCES `config_bom_sec1`(`Product_ID`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE
+            );
         """,
        
         'Batches': """
@@ -462,9 +450,8 @@ def create_tables():
                 `Short_Name` VARCHAR(225) NOT NULL,
                 `Description` VARCHAR(45) NOT NULL,
                 `Specific_Gravity` FLOAT NOT NULL,
-                `Action` INT NOT NULL,
-                `Scale_Type` VARCHAR(225) NOT NULL,
-                `UOM` VARCHAR(50) NOT NULL,
+                `Action` VARCHAR(45) NOT NULL,
+                `Category_Code` VARCHAR(225) NOT NULL,
                 PRIMARY KEY (`ID`)
             );
         """,
@@ -478,8 +465,8 @@ def create_tables():
                 `Bin_Number` INT NOT NULL,
                 `Batch_Number` INT NOT NULL,
                 `Material_Code` VARCHAR(225) NOT NULL,
-                `Action` INT NOT NULL,
-                PRIMARY KEY (`Product_ID`)  
+                `Action` VARCHAR(45) NOT NULL,
+                PRIMARY KEY (`Product_ID`)    
             );
         """,
 
@@ -582,6 +569,100 @@ def insert_alarm_record(alarm_type, message, source):
         if conn.is_connected():
             cursor.close()
             conn.close()
+
+
+
+# ---------------- ALARM HANDLING FUNCTIONS EVENTS ----------------
+
+
+def insert_alarm(message, user='Unknown'):
+    now = datetime.now()
+    query = """
+        INSERT INTO alarm_history (Alarm_Type, Message, Event_datetime, User)
+        VALUES (%s, %s, %s, %s)
+    """
+    values = (message, message, now, user)
+
+    conn = create_db_connection()  # Your DB connection helper
+    cursor = conn.cursor()
+    cursor.execute(query, values)
+    conn.commit()
+
+    alarm_id = cursor.lastrowid  # Get auto-incremented ID
+    cursor.close()
+    conn.close()
+
+    return {
+        "alarm_id": alarm_id,
+        "message": message,
+        "event_datetime": now.strftime('%Y-%m-%d %H:%M:%S')
+    }
+
+def update_alarm_datetime(alarm_id, field):
+    """
+    Update the specified datetime field if not already set.
+    field: 'Acknowledge_datetime', 'Accept_datetime', or 'Normalize_datetime'
+    """
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    conn = create_db_connection()
+    cursor = conn.cursor()
+
+    # Step 1: Check if alarm exists
+    check_query = f"SELECT {field} FROM alarm_history WHERE ID = %s"
+    cursor.execute(check_query, (alarm_id,))
+    result = cursor.fetchone()
+
+    if not result:
+        cursor.close()
+        conn.close()
+        return "not_found"
+
+    if result[0] is not None:
+        cursor.close()
+        conn.close()
+        return "already_done"
+
+    # Step 2: Update the datetime field
+    update_query = f"""
+        UPDATE alarm_history
+        SET {field} = %s
+        WHERE ID = %s
+    """
+    cursor.execute(update_query, (now, alarm_id))
+    conn.commit()
+    updated = cursor.rowcount
+
+    cursor.close()
+    conn.close()
+
+    return "success" if updated > 0 else "update_failed"
+
+def get_alarm_message_by_id(alarm_id):
+    """
+    Fetch the alarm message from the alarm_history table using the alarm ID.
+    Returns the message if found, or None if not found.
+    """
+    conn = create_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        query = "SELECT Message FROM alarm_history WHERE ID = %s"
+        cursor.execute(query, (alarm_id,))
+        result = cursor.fetchone()
+
+        if result:
+            return result[0]  # The message
+        else:
+            return None
+
+    except Exception as e:
+        print(f"Error fetching alarm message: {e}")
+        return None
+
+    finally:
+        cursor.close()
+        conn.close()
+
 
 # ---------- Run It ----------
 if __name__ == "__main__":
