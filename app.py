@@ -63,7 +63,7 @@ def open_app(icon, item):
     
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Ajax@backend'
-CORS(app,supports_credentials=True)
+CORS(app)
 
 # Register blueprint with prefix (optional)
 app.register_blueprint(frontend, url_prefix='/frontend')
@@ -73,7 +73,7 @@ app.register_blueprint(socket_communications, url_prefix='/socket_communications
 
 if __name__ == '__main__':
     if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-        # create_tray()
+        create_tray()
         load_modbus_registry()
         start_thread()
         # backup_database()

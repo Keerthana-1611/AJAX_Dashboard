@@ -12,8 +12,7 @@ MODBUS_INSTANCE = None
 PLC_CONNECTION_STATUS = False
 MODBUS_REGISTRY = {}
 MODBUS_REGISTRY_KEYS = []
-ACTIVE_ALARMS = set()
-PREVIOUS_ALARM_STATE = {} 
+
 
 # Determine base path (for config file loading)
 if getattr(sys, 'frozen', False):
@@ -69,6 +68,36 @@ def create_modbus_connection():
         print(f"Error creating Modbus connection: {e}")
         return None
 
+'''
+# Read values based on the key given which should match the key name in the Address registry file
+def read_by_names(reader, registry: dict, names: list, unit: int = 1) -> dict:
+    result = {}
+
+    for name in names:
+        reg_info = registry.get(name)
+        if not reg_info:
+            result[name] = "Not found"
+            continue
+
+        reg_type = reg_info["type"]
+        address = reg_info["address"]
+
+        try:
+            if reg_type == "coils":
+                result[name] = reader.read_coils(address=address, count=1, unit=unit)[0]
+            elif reg_type == "discrete_inputs":
+                result[name] = reader.read_discrete_inputs(address=address, count=1, unit=unit)[0]
+            elif reg_type == "holding_registers":
+                result[name] = reader.read(address=address, count=1, unit=unit)[0]
+            elif reg_type == "input_registers":
+                result[name] = reader.read_input_registers(address=address, count=1, unit=unit)[0]
+            else:
+                result[name] = f"Unsupported type: {reg_type}"
+        except Exception as e:
+            result[name] = f"Error: {str(e)}"
+
+    return result
+'''
 
 # Main Thread which will be in constant communcation with PLC
 # Used to get the Alarm and other default values and default operations
@@ -294,125 +323,77 @@ def read_plc_values_to_db(keys_to_read: list = None):
         print(f"[ERROR] read_plc_values_to_db: {e}")
         return None
 
+'''
 
+# Testing Manual Read 
+def read_manual_values(unit=1):
+    instance = create_modbus_connection()
+    result = {}
 
-# Abstract function to ready the list of alarm in the array defined as constant
-def read_alarm() -> dict:
-    alarm_lists = [
-    "AGGREGATE CALIBRATION FAULT",
-    "CEMENT CALIBRATION FAULT",
-    "WATER CALIBRATION FAULT",
-    "ADMIXTURE CALIBRATION FAULT",
-    "AGGREGATE FILLING FAULT",
-    "CEMENT FILLING FAULT",
-    "WATER FILLING FAULT",
-    "ADMIXTURE FILLING FAULT",
-    "AGGREGATE DISCHARGE FAULT",
-    "CEMENT DISCHARGE FAULT",
-    "WATER DISCHARGE FAULT",
-    "ADMIXTURE DISCHARGE FAULT",
-    "AGGREGATE DEAD WEIGHT FAULT",
-    "CEMENT DEAD WEIGHT FAULT",
-    "WATER DEAD WEIGHT FAULT",
-    "ADMIXTURE DEAD WEIGHT FAULT",
-    "AGGREGATE BIN-1 TOLERANCE FAULT-- GT",
-    "AGGREGATE BIN-1 TOLERANCE FAULT-- LT",
-    "AGGREGATE BIN-2 TOLERANCE FAULT-- GT",
-    "AGGREGATE BIN-2 TOLERANCE FAULT-- LT",
-    "AGGREGATE BIN-3 TOLERANCE FAULT-- GT",
-    "AGGREGATE BIN-3 TOLERANCE FAULT-- LT",
-    "AGGREGATE BIN-4 TOLERANCE FAULT-- GT",
-    "AGGREGATE BIN-4 TOLERANCE FAULT-- LT",
-    "AGGREGATE BIN-5 TOLERANCE FAULT-- GT",
-    "AGGREGATE BIN-5 TOLERANCE FAULT-- LT",
-    "AGGREGATE BIN-6 TOLERANCE FAULT-- GT",
-    "AGGREGATE BIN-6 TOLERANCE FAULT-- LT",
-    "CEMENT TOLERANCE FAULT C-1 GT",
-    "CEMENT TOLERANCE FAULT C-1 LT",
-    "CEMENT TOLERANCE FAULT C-2 GT",
-    "CEMENT TOLERANCE FAULT C-2 LT",
-    "CEMENT TOLERANCE FAULT C-3 GT",
-    "CEMENT TOLERANCE FAULT C-3 LT",
-    "CEMENT TOLERANCE FAULT C-4 GT",
-    "CEMENT TOLERANCE FAULT C-4 LT",
-    "WATER TOLERANCE FAULT W-1 GT",
-    "WATER TOLERANCE FAULT W-1 LT",
-    "WATER TOLERANCE FAULT W-2 GT",
-    "WATER TOLERANCE FAULT W-2 LT",
-    "ADMIXTURE-1 TOLERANCE FAULT GT",
-    "ADMIXTURE-1 TOLERANCE FAULT LT",
-    "ADMIXTURE-2 TOLERANCE FAULT GT",
-    "ADMIXTURE-2 TOLERANCE FAULT LT",
-    "SKIP DOWN TO WAITING FAULT",
-    "SKIP WAITING TO TOP FAULT",
-    "CLOSE ON"
-    ]
-
-    data = read_data(names=alarm_lists,unit=1)
-    return data
-
-# Clean Alarm function clears the alarm with Alarm Key in the Modbus Address registry
-def clear_alarm(alarm_key):
-    global ACTIVE_ALARMS, MODBUS_REGISTRY
     try:
-        # Safely remove from ACTIVE_ALARMS
-        ACTIVE_ALARMS.discard(alarm_key)
+        result["motor_start"] = instance.read_coils(address=0, count=1, unit=unit)[0]
+        result["valve_open"] = instance.read_coils(address=1, count=1, unit=unit)[0]
+        result["emergency_stop"] = instance.read_coils(address=2, count=1, unit=unit)[0]
 
-        reg_details = MODBUS_REGISTRY.get(alarm_key)
-        if not reg_details:
-            print(f"⚠️ No Modbus registry entry found for alarm key: {alarm_key}")
-            return False
+        result["temperature_setpoint"] = instance.read_holding_registers(address=0, count=1, unit=unit)[0]
+        result["pressure_limit"] = instance.read_holding_registers(address=1, count=1, unit=unit)[0]
+        result["Lower Pressure"] = instance.read_float_register(address=2, inverse=True, unit=unit)
+        result["Upper pressure"] = instance.read_holding_registers(address=1, count=1, unit=unit)[0]
+        result["temperature_actual"] = instance.read_float_register(address=2, inverse=True, unit=unit)
+        result["under Lower"] = instance.read_holding_registers(address=1, count=1, unit=unit)[0]
+        result["Under Upper"] = instance.read_float_register(address=2, inverse=True, unit=unit)
 
-        instance = create_modbus_connection()
-        reg_type = reg_details.get("register_type")
-        value_type = reg_details.get("value_type")
-        reg_address = reg_details.get("address")
-        inverse = reg_details.get("inverse")
+        result["motor_1start"] = instance.read_coils(address=0, count=1, unit=unit)[0]
+        result["valve_2open"] = instance.read_coils(address=1, count=1, unit=unit)[0]
+        result["emergency_3stop"] = instance.read_coils(address=2, count=1, unit=unit)[0]
 
-        if reg_type == "holding_register":
-            if value_type == "Float":
-                instance.write_float_register(address=reg_address, value=0.0, inverse=inverse, unit=1)
-            elif value_type == "U16":
-                instance.write_single_holding_registers(address=reg_address, value=0, unit=1)
-            elif value_type == "U32":
-                instance.write_U32_register(address=reg_address, value=0, inverse=inverse, unit=1)
-            elif value_type == "I32":
-                instance.write_I32_register(address=reg_address, value=0, inverse=inverse, unit=1)
-        elif reg_type == "coil":
-            instance.write_single_coil(address=reg_address, value=False, unit=1)
+        result["temperature_1setpoint"] = instance.read_holding_registers(address=0, count=1, unit=unit)[0]
+        result["pressure_2limit"] = instance.read_holding_registers(address=1, count=1, unit=unit)[0]
+        result["Lower 3Pressure"] = instance.read_float_register(address=2, inverse=True, unit=unit)
+        result["Upper 12pressure"] = instance.read_holding_registers(address=1, count=1, unit=unit)[0]
+        result["temperature_231actual"] = instance.read_float_register(address=2, inverse=True, unit=unit)
+        result["under 12Lower"] = instance.read_holding_registers(address=1, count=1, unit=unit)[0]
 
-        return True
+        result["valv1_open"] = instance.read_coils(address=1, count=1, unit=unit)[0]
+        result["emerg1ency_stop"] = instance.read_coils(address=2, count=1, unit=unit)[0]
+
+        result["tempe1rature_setpoint"] = instance.read_holding_registers(address=0, count=1, unit=unit)[0]
+        result["pressu1re_limit"] = instance.read_holding_registers(address=1, count=1, unit=unit)[0]
+        result["Lowe1r Pressure"] = instance.read_float_register(address=2, inverse=True, unit=unit)
+        result["Upper 1pressure"] = instance.read_holding_registers(address=1, count=1, unit=unit)[0]
+        result["temper1ature_actual"] = instance.read_float_register(address=2, inverse=True, unit=unit)
+        result["under L1ower"] = instance.read_holding_registers(address=1, count=1, unit=unit)[0]
+        result["Under Up1per"] = instance.read_float_register(address=2, inverse=True, unit=unit)
+
+        result["motor_1st1art"] = instance.read_coils(address=0, count=1, unit=unit)[0]
+        result["valve_21open"] = instance.read_coils(address=1, count=1, unit=unit)[0]
+        result["emergency_3s1top"] = instance.read_coils(address=2, count=1, unit=unit)[0]
+
+        result["temperature11_1setpoint"] = instance.read_holding_registers(address=0, count=1, unit=unit)[0]
+        result["pressure_2limi1t"] = instance.read_holding_registers(address=1, count=1, unit=unit)[0]
+        result["Lower 3Pressu1re"] = instance.read_float_register(address=2, inverse=True, unit=unit)
+        result["Upper 12pres1sure"] = instance.read_holding_registers(address=1, count=1, unit=unit)[0]
+        result["temperature_231ac1tual"] = instance.read_float_register(address=2, inverse=True, unit=unit)
+        result["under 12L2ower"] = instance.read_holding_registers(address=1, count=1, unit=unit)[0]
+        result["Lowaer 3Pressu1re"] = instance.read_float_register(address=2, inverse=True, unit=unit)
+        result["Uppser 12pres1sure"] = instance.read_holding_registers(address=1, count=1, unit=unit)[0]
+        result["tempserature_231ac1tual"] = instance.read_float_register(address=2, inverse=True, unit=unit)
 
     except Exception as e:
-        print(f"❌ Error clearing alarm '{alarm_key}': {e}")
-        return False
+        print(f"Error during manual read: {e}")
 
-# Write Accept and Terminate functions write as pulse in the their address
-def write_accept():
-    global MODBUS_REGISTRY
-    try:
-        instance = create_modbus_connection()
+    return result
 
-        reg_details = MODBUS_REGISTRY.get("Alarm_ACCEPT")
-        address = reg_details.get("address")
-        instance.write_single_coil(address=address,value=True,unit=1)
-        time.sleep(0.2)
-        instance.write_single_coil(address=address,value=False,unit=1)
-        return True
-    except Exception as e:
-        return False
-
-def write_terminate():
-    global MODBUS_REGISTRY
-    try:
-        instance = create_modbus_connection()
-
-        reg_details = MODBUS_REGISTRY.get("Alarm_TERMINATE")
-        address = reg_details.get("address")
-        instance.write_single_coil(address=address,value=True,unit=1)
-        time.sleep(0.2)
-        instance.write_single_coil(address=address,value=False,unit=1)
-        return True
-    except Exception as e:
-        print(e)
-        return False
+load_modbus_registry()
+load_plc_config()
+print(len(MODBUS_REGISTRY_KEYS))
+time.sleep(2)
+while True:
+    start = time.time()
+    auto_values = read_data(MODBUS_REGISTRY_KEYS,1)
+    auto_read_time = f"Auto Read time : {time.time() - start} sec"
+    manual_start = time.time()
+    manula_values = read_manual_values()
+    manual_read_time = f"Manual Read time : {time.time() - manual_start} sec"
+    print(f"{auto_read_time}\n{manual_read_time}")
+'''
