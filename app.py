@@ -74,9 +74,10 @@ app.register_blueprint(socket_communications, url_prefix='/socket_communications
 if __name__ == '__main__':
     if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
         # create_tray()
-        load_modbus_registry()
-        start_thread()
+        #load_modbus_registry()
+        #start_thread()
         # backup_database()
+        pass
     # setup_database_and_tables()  # If needed
     socketio.init_app(app=app, cors_allowed_origins="*")
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)

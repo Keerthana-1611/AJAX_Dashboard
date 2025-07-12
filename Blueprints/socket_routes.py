@@ -64,7 +64,7 @@ def handle_random_disconnect():
 def random_thread(sid):
     while client_threads.get(sid, False):
         value = random.randint(1, 100)
-        print(value)
+        # print(value)
         socketio.emit('random_value', {'value': value,
                                        "somthing": 23}, to=sid, namespace='/random_socket')
         socketio.sleep(0.0)

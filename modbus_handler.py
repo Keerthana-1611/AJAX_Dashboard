@@ -46,6 +46,7 @@ def load_modbus_registry(filepath=os.path.join(BASE_PATH,"data","PLC_Address_reg
         print(f"Failed to load registry: {e}")
         MODBUS_REGISTRY = {}
 
+
 # Creates Modbus connection based on the previous loaded details
 def create_modbus_connection():
     global MODBUS_INSTANCE
@@ -294,6 +295,23 @@ def read_plc_values_to_db(keys_to_read: list = None):
         print(f"[ERROR] read_plc_values_to_db: {e}")
         return None
 
+# Reads alarm coild and send its as dictionart
+def read_alarm_sequential(alarm_list : list,unit : int = 1 ) -> dict:
+    global MODBUS_REGISTRY
+    result = {}
+    size = len(alarm_list)
+    instance = create_modbus_connection()
+    starting_reg_details = MODBUS_REGISTRY.get(alarm_list[0])
+    if starting_reg_details:
+        starting_reg_address = starting_reg_details.get("address")
+        data = instance.read_coils(address=starting_reg_address,count=size,unit=1)
+
+        for i in range(size):
+            result[alarm_list[i]] = data[i]
+            
+        return result
+    else:
+        return {}
 
 
 # Abstract function to ready the list of alarm in the array defined as constant
@@ -348,7 +366,8 @@ def read_alarm() -> dict:
     "CLOSE ON"
     ]
 
-    data = read_data(names=alarm_lists,unit=1)
+    # data = read_data(names=alarm_lists,unit=1)
+    data = read_alarm_sequential(alarm_list=alarm_lists,unit=1)
     return data
 
 # Clean Alarm function clears the alarm with Alarm Key in the Modbus Address registry
@@ -406,7 +425,6 @@ def write_terminate():
     global MODBUS_REGISTRY
     try:
         instance = create_modbus_connection()
-
         reg_details = MODBUS_REGISTRY.get("Alarm_TERMINATE")
         address = reg_details.get("address")
         instance.write_single_coil(address=address,value=True,unit=1)
