@@ -4,7 +4,7 @@ import sys
 import shutil
 
 # === Configuration ===
-project_dir = "D:\\Production Projects\\Ajax-Backend"
+project_dir = os.getcwd()
 icon_path = os.path.join(project_dir, "logo\\Ajax-Backend-logo.ico")
 entry_file = os.path.join(project_dir, "app.py")
 exe_name = "Ajax-Backend"
@@ -23,6 +23,7 @@ def build_exe():
     f"--hidden-import=flask "
     f"--hidden-import=pymodbus "
     f"--hidden-import=flask_socketio "
+    f"--hidden-import=socketio.namespace "
     f"--hidden-import=pymodbus.client.serial "
     f"--hidden-import=engineio.async_drivers.threading "
     f"--hidden-import=flask_cors "
@@ -30,11 +31,13 @@ def build_exe():
     f"--hidden-import=webbrowser "
     f"--hidden-import=PIL.Image "
     f"--hidden-import=pystray "
+    f'--hidden-import=socketio.async_drivers.threading ',
     f"--collect-submodules mysql "
     f"--collect-submodules pymodbus "
     f'--name "{exe_name}" '
     f'--icon "{icon_path}" '
     f'--add-data "{project_dir}/.venv/Lib/site-packages/mysql;mysql" '
+    f'--add-data "{project_dir}/.venv/Lib/site-packages/socketio;socketio" '
     f'--add-data "{project_dir}/db_handler.py;." '
     f'--add-data "{project_dir}/modbus_handler.py;." '
     f'--add-data "{project_dir}/main.py;." '

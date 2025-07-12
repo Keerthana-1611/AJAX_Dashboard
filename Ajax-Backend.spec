@@ -1,16 +1,16 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_submodules
 
-hiddenimports = ['mysql', 'flask', 'pymodbus', 'flask_socketio', 'pymodbus.client.serial', 'engineio.async_drivers.threading', 'flask_cors', 'pyserial', 'webbrowser', 'PIL.Image', 'pystray']
+hiddenimports = ['mysql', 'flask', 'pymodbus', 'flask_socketio', 'socketio.namespace', 'pymodbus.client.serial', 'engineio.async_drivers.threading', 'flask_cors', 'pyserial', 'webbrowser', 'PIL.Image', 'pystray']
 hiddenimports += collect_submodules('mysql')
 hiddenimports += collect_submodules('pymodbus')
 
 
 a = Analysis(
-    ['D:\\Production Projects\\Ajax-Backend\\app.py'],
+    ['C:\\Users\\Lenovo1\\Desktop\\New folder\\AJAX_Dashboard\\app.py'],
     pathex=[],
     binaries=[],
-    datas=[('D:\\Production Projects\\Ajax-Backend/.venv/Lib/site-packages/mysql', 'mysql'), ('D:\\Production Projects\\Ajax-Backend/db_handler.py', '.'), ('D:\\Production Projects\\Ajax-Backend/modbus_handler.py', '.'), ('D:\\Production Projects\\Ajax-Backend/main.py', '.'), ('D:\\Production Projects\\Ajax-Backend/Blueprints', 'Blueprints'), ('D:\\Production Projects\\Ajax-Backend/DAQ', 'DAQ'), ('D:\\Production Projects\\Ajax-Backend/data', 'data'), ('D:\\Production Projects\\Ajax-Backend/logo', 'logo')],
+    datas=[('C:\\Users\\Lenovo1\\Desktop\\New folder\\AJAX_Dashboard/.venv/Lib/site-packages/mysql', 'mysql'), ('C:\\Users\\Lenovo1\\Desktop\\New folder\\AJAX_Dashboard/.venv/Lib/site-packages/socketio', 'socketio'), ('C:\\Users\\Lenovo1\\Desktop\\New folder\\AJAX_Dashboard/db_handler.py', '.'), ('C:\\Users\\Lenovo1\\Desktop\\New folder\\AJAX_Dashboard/modbus_handler.py', '.'), ('C:\\Users\\Lenovo1\\Desktop\\New folder\\AJAX_Dashboard/main.py', '.'), ('C:\\Users\\Lenovo1\\Desktop\\New folder\\AJAX_Dashboard/Blueprints', 'Blueprints'), ('C:\\Users\\Lenovo1\\Desktop\\New folder\\AJAX_Dashboard/DAQ', 'DAQ'), ('C:\\Users\\Lenovo1\\Desktop\\New folder\\AJAX_Dashboard/data', 'data'), ('C:\\Users\\Lenovo1\\Desktop\\New folder\\AJAX_Dashboard/logo', 'logo')],
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
@@ -40,6 +40,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['D:\\Production Projects\\Ajax-Backend\\logo\\Ajax-Backend-logo.ico'],
+    icon=['C:\\Users\\Lenovo1\\Desktop\\New folder\\AJAX_Dashboard\\logo\\Ajax-Backend-logo.ico'],
     manifest='elevated.manifest',
 )
