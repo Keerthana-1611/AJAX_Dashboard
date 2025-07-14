@@ -8,7 +8,7 @@ import random
 import sys
 import os
 from flask_socketio import SocketIO
-from modbus_handler import read_alarm
+from modbus_handler import read_alarm,read_mimic_value
 
 if getattr(sys, 'frozen', False):
     # Running in PyInstaller bundle
@@ -125,3 +125,29 @@ def handle_plc_disconnect():
     client_threads[sid] = False
     client_threads.pop(sid, None) 
     print(f"❌ Alarm thread Client disconnected: {sid}")
+
+# ---------------- MIMIC SOCKET  ----------------------
+
+@socketio.on('connect', namespace='/mimic_socket')
+def handle_random_connect():
+    sid = request.sid
+    print(f"✅ MIMIC socket Client connected: {sid}")
+    client_threads[sid] = True
+    socketio.start_background_task(mimic_socket_process, sid)
+
+
+@socketio.on('disconnect', namespace='/mimic_socket')
+def handle_random_disconnect():
+    sid = request.sid
+    client_threads[sid] = False
+    print(f"❌ MIMIC socket Client disconnected: {sid}")
+
+
+# Background thread for /mimic_socket
+def mimic_socket_process(sid):
+    while client_threads.get(sid, False):
+        value = random.randint(1, 100)
+        socketio.emit('mimic_values',{"data":read_mimic_value()} , to=sid, namespace='/mimic_socket')
+        socketio.sleep(0.0)
+    print(f"🛑 MIMIC socket thread stopped for {sid}")
+

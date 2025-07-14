@@ -152,6 +152,81 @@ def read_data(names: list, unit: int = 1) -> dict:
             result[name] = False if reg_type == "coil" else 0
     return result
 
+def read_grouped_data(grouped_keys: dict, unit: int = 1) -> dict:
+    """
+    Reads Modbus values using grouped key structure and returns nested results:
+    {
+        "BIN1": { "GET_VALUE": ..., "SET_VALUE": ..., ... },
+        "MIXER": { "STATUS": ..., "GATE_STATUS": ... },
+        "AUTO_MANUAL_STATUS": ...
+    }
+    """
+    global MODBUS_REGISTRY
+    result = {}
+    instance = MODBUS_INSTANCE
+
+    for group, sub_keys in grouped_keys.items():
+        # Handle flat keys like AUTO_MANUAL_STATUS
+        if not sub_keys:
+            reg_info = MODBUS_REGISTRY.get(group)
+            if not reg_info:
+                result[group] = "Not found"
+                continue
+
+            reg_type = reg_info["register_type"]
+            value_type = reg_info["value_type"]
+            address = reg_info["address"]
+            inverse = reg_info["inverse"]
+
+            try:
+                if reg_type == "coil":
+                    result[group] = instance.read_coils(address=address, count=1, unit=unit)[0]
+                elif reg_type == "input_register":
+                    result[group] = instance.read_input_registers(address=address, count=1, unit=unit)[0]
+                else:
+                    result[group] = 0
+            except Exception:
+                result[group] = False if reg_type == "coil" else 0
+        else:
+            result[group] = {}
+            for sub_key in sub_keys:
+                full_key = f"{group}_{sub_key}"
+                reg_info = MODBUS_REGISTRY.get(full_key)
+
+                if not reg_info:
+                    result[group][sub_key] = "Not found"
+                    continue
+
+                reg_type = reg_info["register_type"]
+                value_type = reg_info["value_type"]
+                address = reg_info["address"]
+                inverse = reg_info["inverse"]
+
+                try:
+                    if reg_type == "coil":
+                        result[group][sub_key] = instance.read_coils(address=address, count=1, unit=unit)[0]
+                    elif reg_type == "discrete_input":
+                        result[group][sub_key] = instance.read_discrete_inputs(address=address, count=1, unit=unit)[0]
+                    elif reg_type == "holding_register":
+                        if value_type == 'U16':
+                            result[group][sub_key] = instance.read_single_holding_register(address=address, count=1, unit=unit)
+                        elif value_type == 'Float':
+                            result[group][sub_key] = instance.read_float_register(address=address, inverse=inverse, unit=unit)
+                        elif value_type == 'U32':
+                            result[group][sub_key] = instance.read_U32_register(address=address, inverse=inverse, unit=unit)
+                        elif value_type == 'I32':
+                            result[group][sub_key] = instance.read_I32_register(address=address, inverse=inverse, unit=unit)
+                        elif value_type == 'Double':
+                            result[group][sub_key] = instance.read_double_register(address=address, inverse=inverse, unit=unit)
+                    elif reg_type == "input_register":
+                        result[group][sub_key] = instance.read_input_registers(address=address, count=1, unit=unit)[0]
+                    else:
+                        result[group][sub_key] = False if reg_type == "coil" else 0
+                except Exception:
+                    result[group][sub_key] = False if reg_type == "coil" else 0
+
+    return result
+
 def update_values_to_plc(data : dict):
     global MODBUS_REGISTRY
     '''
@@ -604,3 +679,31 @@ def update_plc_mode_registers(updates: list) -> bool:
         return write_db_values_to_plc(plc_data_to_write)
 
     return True
+
+
+def read_mimic_value() -> dict:
+    grouped_keys = {
+    "BIN1": ["GET_VALUE", "SET_VALUE", "ACTUAL_VALUE", "GATE_STATUS"],
+    "BIN2": ["GET_VALUE", "SET_VALUE", "ACTUAL_VALUE", "GATE_STATUS"],
+    "BIN3": ["GET_VALUE", "SET_VALUE", "ACTUAL_VALUE", "GATE_STATUS"],
+    "BIN4": ["GET_VALUE", "SET_VALUE", "ACTUAL_VALUE", "GATE_STATUS"],
+    "BIN5": ["GET_VALUE", "SET_VALUE", "ACTUAL_VALUE", "GATE_STATUS"],
+    "BIN6": ["GET_VALUE", "SET_VALUE", "ACTUAL_VALUE", "GATE_STATUS"],
+    
+    "CMT1": ["GET_VALUE", "SET_VALUE", "ACTUAL_VALUE", "GATE_STATUS"],
+    "CMT2": ["GET_VALUE", "SET_VALUE", "ACTUAL_VALUE", "GATE_STATUS"],
+    "CMT3": ["GET_VALUE", "SET_VALUE", "ACTUAL_VALUE", "GATE_STATUS"],
+    
+    "WTR1": ["GET_VALUE", "SET_VALUE", "GATE_STATUS"],
+    "WTR2": ["GET_VALUE", "SET_VALUE", "GATE_STATUS"],
+    
+    "ADM1": ["GET_VALUE", "SET_VALUE", "GATE_STATUS"],
+    "ADM2": ["GET_VALUE", "SET_VALUE", "GATE_STATUS"],
+    "ADM3": ["GET_VALUE", "SET_VALUE", "GATE_STATUS"],
+    
+    "MIXER": ["STATUS", "GATE_STATUS"],
+    
+    "AUTO_MANUAL_STATUS": [],
+    "SKIP":["STATUS", "BOTTOM_STATUS", "WAITING_STATUS", "TOP_STATUS", "EMG_STATUS"]
+    }
+    return read_grouped_data(grouped_keys=grouped_keys, unit=1)

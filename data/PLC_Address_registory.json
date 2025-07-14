@@ -1481,5 +1481,361 @@
         "address": 37910,
         "value_type": "U32",
         "inverse": false
-    }
+    },
+  "BIN1_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40000,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN1_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40002,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN1_ACTUAL_VALUE": {
+    "register_type": "holding_register",
+    "address": 40004,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN1_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10000,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "BIN2_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40006,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN2_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40008,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN2_ACTUAL_VALUE": {
+    "register_type": "holding_register",
+    "address": 40010,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN2_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10001,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "BIN3_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40012,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN3_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40014,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN3_ACTUAL_VALUE": {
+    "register_type": "holding_register",
+    "address": 40016,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN3_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10002,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "BIN4_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40018,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN4_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40020,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN4_ACTUAL_VALUE": {
+    "register_type": "holding_register",
+    "address": 40022,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN4_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10003,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "BIN5_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40024,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN5_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40026,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN5_ACTUAL_VALUE": {
+    "register_type": "holding_register",
+    "address": 40028,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN5_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10004,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "BIN6_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40030,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN6_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40032,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN6_ACTUAL_VALUE": {
+    "register_type": "holding_register",
+    "address": 40034,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "BIN6_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10005,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "CMT1_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40036,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "CMT1_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40038,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "CMT1_ACTUAL_VALUE": {
+    "register_type": "holding_register",
+    "address": 40040,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "CMT1_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10006,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "CMT2_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40042,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "CMT2_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40044,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "CMT2_ACTUAL_VALUE": {
+    "register_type": "holding_register",
+    "address": 40046,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "CMT2_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10007,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "CMT3_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40048,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "CMT3_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40050,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "CMT3_ACTUAL_VALUE": {
+    "register_type": "holding_register",
+    "address": 40052,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "CMT3_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10008,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "WTR1_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40054,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "WTR1_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40056,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "WTR1_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10009,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "WTR2_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40058,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "WTR2_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40060,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "WTR2_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10010,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "ADM1_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40062,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "ADM1_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40064,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "ADM1_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10011,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "ADM2_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40066,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "ADM2_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40068,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "ADM2_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10012,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "ADM3_GET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40070,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "ADM3_SET_VALUE": {
+    "register_type": "holding_register",
+    "address": 40072,
+    "value_type": "Float",
+    "inverse": false
+  },
+  "ADM3_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10013,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "AUTO_MANUAL_STATUS": {
+    "register_type": "coil",
+    "address": 10014,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "SKIP_BOTTOM_STATUS": {
+    "register_type": "coil",
+    "address": 10015,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "SKIP_WAITING_STATUS": {
+    "register_type": "coil",
+    "address": 10016,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "SKIP_TOP_STATUS": {
+    "register_type": "coil",
+    "address": 10017,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "SKIP_EMG_STATUS": {
+    "register_type": "coil",
+    "address": 10018,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "MIXER_STATUS": {
+    "register_type": "coil",
+    "address": 10019,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "MIXER_GATE_STATUS": {
+    "register_type": "coil",
+    "address": 10020,
+    "value_type": "Bool",
+    "inverse": false
+  },
+  "SKIP_STATUS": {
+    "register_type": "coil",
+    "address": 10021,
+    "value_type": "Bool",
+    "inverse": false
+  }
+
+
 }
