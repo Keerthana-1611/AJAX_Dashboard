@@ -133,7 +133,7 @@ def read_data(names: list, unit: int = 1) -> dict:
                 result[name] = instance.read_discrete_inputs(address=address, count=1, unit=unit)[0]
             elif reg_type == "holding_register":
                 if value_type == 'U16':
-                    result[name] = instance.read_holding_registers(address=address ,count=1, unit=unit)[0]
+                    result[name] = instance.read_single_holding_register(address=address ,count=1, unit=unit)
                 if value_type == 'Float':
                     result[name] = instance.read_float_register(address=address, inverse=inverse, unit=unit)
                 elif value_type == "U32":
@@ -270,7 +270,7 @@ def read_plc_values_to_db(keys_to_read: list = None):
                 if value_type == "Float":
                     value = instance.read_float_register(address=address, inverse=inverse, unit=1)
                 elif value_type == "U16":
-                    value = instance.read_single_holding_registers(address=address, unit=1)
+                    value = instance.read_single_holding_register(address=address, unit=1)
                 elif value_type == "U32":
                     value = instance.read_U32_register(address=address, inverse=inverse, unit=1)
                 elif value_type == "I32":
@@ -434,3 +434,173 @@ def write_terminate():
     except Exception as e:
         print(e)
         return False
+    
+def write_plc_mode(mode):
+    global MODBUS_REGISTRY
+    try:
+        instance = create_modbus_connection()
+        value = 0 if mode == 'auto' else 1
+        reg_details = MODBUS_REGISTRY.get('PLC_MODE')
+        address = reg_details.get('address')
+        instance.write_single_coil(address=address,value=value,unit=1)
+        return True
+    except Exception as e:
+        return False
+
+def write_truck_present(truck_present):
+    global MODBUS_REGISTRY
+    try:
+        instance = create_modbus_connection()
+        reg_details = MODBUS_REGISTRY.get('TRUCK_PRESENT')
+        address = reg_details.get('address')
+        instance.write_single_coil(address=address,value=truck_present,unit=1)
+        return True
+    except Exception as e:
+        return False
+    
+def write_plant_parameters(data):
+    global MODBUS_REGISTRY
+    try:
+        instance = create_modbus_connection()
+        keys_map = {
+            "stabilization_time":"scale_stabilization_time",
+            "belt_transfer_time":"belt_transfer_time",
+            "belt_pre_running_time":"belt_pre_running_time",
+            "top_to_waiting_time":"top_to_waiting_time",
+            "mixer_delta_on_time": "mixer_delta_on_time",
+            "max_mixer_capacity":"max_mixer_capacity",
+            "min_mixer_capacity":"min_mixer_capacity"
+        }
+
+        for key,value in data.items():
+            if not isinstance(value,dict):
+                reg_info = MODBUS_REGISTRY.get(key)
+                if reg_info:
+                    reg_type = reg_info.get("register_type")
+                    value_type = reg_info.get("value_type")
+                    address = reg_info.get("address")
+                    inverse = reg_info.get("inverse", False)
+
+                    if reg_type == "holding_register":
+                        if value_type == "Float":
+                            instance.write_float_register(address=address,value=value, inverse=inverse, unit=1)
+                        elif value_type == "U16":
+                            instance.write_single_holding_registers(address=address,value=value, unit=1)
+                        elif value_type == "U32":
+                            instance.write_U32_register(address=address,value=value, inverse=inverse, unit=1)
+                        elif value_type == "I32":
+                            instance.write_I32_register(address=address,value=value, inverse=inverse, unit=1)
+                        elif value_type == "Double":
+                            instance.write_double_register(address=address,value=value, inverse=inverse, unit=1)
+                    elif reg_type == "coil":
+                        instance.write_single_coil(address=address,value=value,unit=1)
+
+        return True
+    except Exception as e:
+        # print(e)
+        return False
+    
+
+# Write Order_Config
+def write_order_config_to_plc(name: str, total_bins: int, bins: list = None) -> bool:
+    try:
+        name = name.upper()
+
+        name_to_modbus_key = {
+            "AGGREGATE": "No_Bin_AGG",
+            "CEMENT": "No_Bin_CEM",
+            "ADMIXTURES": "No_Bin_ADMIX",
+            "WATER": "No_Bin_WATER"
+        }
+
+        modbus_key = name_to_modbus_key.get(name)
+        if not modbus_key:
+            print(f"[SKIPPED] No PLC mapping found for name: {name}")
+            return False
+
+        plc_data = {modbus_key: total_bins}
+        print(f"[PLC WRITE] {modbus_key} = {total_bins}")
+
+        if bins and isinstance(bins, list):
+            for bin in bins:
+                bin_name = bin.get("bin_name")
+                order_number = bin.get("order_number")
+
+                if not bin_name or order_number is None:
+                    print(f"[SKIPPED] Invalid bin entry: {bin}")
+                    continue
+
+                order_modbus_key = f"Order_Bin_{name} {bin_name}".upper()
+
+                if order_modbus_key not in MODBUS_REGISTRY:
+                    print(f"[SKIPPED] Modbus key not found: {order_modbus_key}")
+                    continue
+
+                plc_data[order_modbus_key] = order_number
+                print(f"[PLC WRITE] {order_modbus_key} = {order_number}")
+
+        return write_db_values_to_plc(plc_data)
+
+    except Exception as e:
+        print(f"[ERROR] write_total_bins_to_plc: {e}")
+        return False
+
+
+# PLC_Mode_Register
+def update_plc_mode_registers(updates: list) -> bool:
+    global MODBUS_REGISTRY
+    sales_name_to_modbus_key = {
+        "AGGREGATE BIN 1": "Mode_AGG BIN 1",
+        "AGGREGATE BIN 2": "Mode_AGG BIN 2",
+        "AGGREGATE BIN 3": "Mode_AGG BIN 3",
+        "AGGREGATE BIN 4": "Mode_AGG BIN 4",
+        "AGGREGATE BIN 5": "Mode_AGG BIN 5",
+        "AGGREGATE BIN 6": "Mode_AGG BIN 6",
+        "CEMENT BIN 1": "Mode_CEM BIN 1",
+        "CEMENT BIN 2": "Mode_CEM BIN 2",
+        "CEMENT BIN 3": "Mode_CEM BIN 3",
+        "CEMENT BIN 4": "Mode_CEM BIN 4",
+        "ADMIXTURES BIN 1": "Mode_ADMIX 1",
+        "ADMIXTURES BIN 2": "Mode_ADMIX 2",
+        "WATER BIN 1": "Mode_WATER 1",
+        "WATER BIN 2": "Mode_WATER 2",
+    }
+
+    mode_type_to_value = {
+        "AUTOINFLIGHT": 0,
+        "FIXEDJOG": 1,
+        "AUTOJOG": 2,
+    }
+
+    plc_data_to_write = {}
+
+    for item in updates:
+        sales_name = item.get("sales_name")
+        mode_type = item.get("mode_type")
+        correction_type = item.get("correction_type")
+
+        if not sales_name or not mode_type or not correction_type:
+            # print(f"[SKIPPED] Incomplete item: {item}")
+            continue
+
+        # Main mode write (e.g., Mode_AGG BIN 1)
+        modbus_key = sales_name_to_modbus_key.get(sales_name)
+        plc_value = mode_type_to_value.get(mode_type.upper())
+        if modbus_key and plc_value is not None:
+            plc_data_to_write[modbus_key] = plc_value
+            # print(f"[PLC WRITE] {modbus_key} = {plc_value}")
+        else:
+            pass
+            #print(f"[SKIPPED] Could not map {sales_name} or mode_type")
+
+        # Additional write to Mean_Correction
+        if "Mean_Correction" in MODBUS_REGISTRY:
+            correction_value = 0 if correction_type.upper() == "BATCH" else 1
+            plc_data_to_write["Mean_Correction"] = correction_value
+            print(f"[PLC WRITE] Mean_Correction = {correction_value}")
+
+    # Final call to Modbus writer
+    if plc_data_to_write:
+        return write_db_values_to_plc(plc_data_to_write)
+
+    return True

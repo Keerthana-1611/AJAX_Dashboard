@@ -486,46 +486,48 @@ def get_plant_parameters():
 def update_plant_parameters():
     data = request.get_json()
     updates = data.get('updates')
+    if write_plant_parameters(updates):
+        if not isinstance(updates, dict):
+            return jsonify({"error": "'updates' must be a dictionary"}), 400
 
-    if not isinstance(updates, dict):
-        return jsonify({"error": "'updates' must be a dictionary"}), 400
+        file_path = os.path.join(BASE_PATH, "data", "Plant_Parameters.json")
 
-    file_path = os.path.join(BASE_PATH, "data", "Plant_Parameters.json")
+        if not os.path.isfile(file_path):
+            return jsonify({"error": "File not found"}), 404
 
-    if not os.path.isfile(file_path):
-        return jsonify({"error": "File not found"}), 404
+        try:
+            if update_values_to_plc(updates):
+                with open(file_path, 'r') as f:
+                    original_data = json.load(f)
 
-    try:
-        if update_values_to_plc(updates):
-            with open(file_path, 'r') as f:
-                original_data = json.load(f)
+                for key, value in updates.items():
+                    if key not in original_data:
+                        return jsonify({"error": f"Key '{key}' not found in original file"}), 400
 
-            for key, value in updates.items():
-                if key not in original_data:
-                    return jsonify({"error": f"Key '{key}' not found in original file"}), 400
+                    expected_type = type(original_data[key])
 
-                expected_type = type(original_data[key])
+                    # Allow int if original is float
+                    if expected_type == float and isinstance(value, int):
+                        value = float(value)
+                    elif not isinstance(value, expected_type):
+                        return jsonify({
+                            "error": f"Type mismatch for key '{key}'. Expected {expected_type.__name__}"
+                        }), 400
 
-                # Allow int if original is float
-                if expected_type == float and isinstance(value, int):
-                    value = float(value)
-                elif not isinstance(value, expected_type):
-                    return jsonify({
-                        "error": f"Type mismatch for key '{key}'. Expected {expected_type.__name__}"
-                    }), 400
+                    original_data[key] = value
 
-                original_data[key] = value
+                with open(file_path, 'w') as f:
+                    json.dump(original_data, f, indent=4)
 
-            with open(file_path, 'w') as f:
-                json.dump(original_data, f, indent=4)
+                return jsonify({"success": True, "message": "Plant Parameter updated successfully"})
 
-            return jsonify({"success": True, "message": "Plant Parameter updated successfully"})
-
-        else:
-            return jsonify({"success": True, "message": "Plant Parameter updated failed"})
-        
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+            else:
+                return jsonify({"success": True, "message": "Plant Parameter updated failed"})
+            
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    else:
+        return jsonify({"success":False,"error": "Unknown error occured while writing settings to PLC."}), 500
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Get Sales Order BOM
@@ -720,7 +722,7 @@ def update_sales_order():
         cursor = conn.cursor()
 
         # Step 1: Validate Mix_Name exists
-        cursor.execute("SELECT ID FROM mix_design WHERE MixdesignName = %s", (mix_name,))
+        cursor.execute("SELECT ID FROM mix_design WHERE name = %s", (mix_name,))
         if not cursor.fetchone():
             return jsonify({
                 "success": False,
@@ -743,7 +745,7 @@ def update_sales_order():
         # Step 3: Prepare update fields
         valid_fields = [
             'Mix_Name', 'Ordered_Qty', 'Load_Qty',
-            'Produced_Qty', 'MixingTime'
+            'Produced_Qty', 'MixingTime','Site_Name','Vehicle_Number'
         ]
 
         updates = []
@@ -778,6 +780,7 @@ def update_sales_order():
         return jsonify({"success": True, "message": "Sales order updated successfully"})
 
     except Exception as e:
+        print(e)
         return jsonify({"success": False, "error": str(e)}), 500
     finally:
         if 'cursor' in locals(): cursor.close()
@@ -1196,7 +1199,7 @@ def save_update_mix_design_bom():
             value = item.get('Value')
 
             if material_code and value is not None:
-                cursor.execute(f"UPDATE mix_design_bom SET Value = {value}WHERE Mix_Design_ID = {mix_id} AND Material_Code = '{material_code}'")
+                cursor.execute(f"UPDATE mix_design_bom SET Value = {value} WHERE Mix_Design_ID = {mix_id} AND Material_Code = '{material_code}'")
 
         conn.commit()
         return jsonify({"success": True, "message": "Mix design BOM updated successfully."})
@@ -1260,30 +1263,43 @@ def get_product_settings_details():
         conn = create_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        # Fetch all product container settings
-        cursor.execute("SELECT * FROM product_container_settings")
+        # Fetch product container settings joined with qc_materials to get material details
+        cursor.execute("""
+            SELECT 
+                pcs.ID,
+                pcs.Material_ID,
+                qm.Material_Code as Product_Code,
+                qm.Material_Name,
+                pcs.Defination,
+                pcs.Large_Jog_Weight,
+                pcs.Large_Jog_Time,
+                pcs.Small_Jog_Time,
+                pcs.Small_Jog_Weight,
+                pcs.Weighting_Mode
+            FROM product_container_settings pcs
+            JOIN qc_materials qm ON pcs.Material_ID = qm.ID
+        """)
         container_settings = cursor.fetchall()
 
         # Fetch all product settings
         cursor.execute("SELECT * FROM product_settings")
         product_settings = cursor.fetchall()
 
-        # Start building the response dictionary
+        # Build the response
         response_data = {
             "success": True,
             "product_container_settings": container_settings,
             "product_settings": product_settings
         }
 
-        # Read and merge JSON file content
+        # Try loading JSON data from file
         file_path = os.path.join(BASE_PATH, "data", "Product_Settings.json")
         if os.path.isfile(file_path):
             try:
                 with open(file_path, 'r') as f:
                     json_data = json.load(f)
-                    response_data.update(json_data)  # Merge contents into response_data
+                    response_data.update(json_data)
             except Exception as file_error:
-                # Optionally log the error or add a debug message
                 response_data["json_read_error"] = f"Could not parse JSON: {str(file_error)}"
         else:
             response_data["json_read_error"] = "File not found"
@@ -1323,7 +1339,15 @@ def update_product_settings():
 
         skip_keys = {"product_settings", "product_container_settings"}
 
-        # Update JSON file fields
+        plc_keys_to_map = {
+                "agg_prerun_time": "agg_prerun_time",
+                "max_water_off": "max_water_off",
+                "min_water_off": "min_water_off",
+            }
+
+        flat_data = {}
+
+        # Update JSON file fields and collect PLC values
         for key, value in updates.items():
             if key in skip_keys:
                 continue
@@ -1339,15 +1363,18 @@ def update_product_settings():
                 }), 400
             original_data[key] = value
 
+            if key in plc_keys_to_map:
+                flat_data[plc_keys_to_map[key]] = value
+
+        # Save updated JSON file
         with open(file_path, 'w') as f:
             json.dump(original_data, f, indent=4)
 
+        # Connect to MySQL
         conn = create_db_connection()
         if conn is None:
             return jsonify({"success": False, "error": "Database connection failed"}), 500
         cursor = conn.cursor(dictionary=True)
-
-        flat_data = {}
 
         # Mapping Scales to material
         scale_to_material = {
@@ -1383,57 +1410,27 @@ def update_product_settings():
                     sql = f"UPDATE product_settings SET {', '.join(columns)} WHERE ID = %s"
                     cursor.execute(sql, tuple(values))
 
-                # Dead_Weight
-                if "Dead_Weight" in item:
-                    scale = item.get("Scales")
-                    if not scale:
-                        cursor.execute("SELECT Scales FROM product_settings WHERE ID = %s", (item["ID"],))
-                        row = cursor.fetchone()
-                        scale = row["Scales"] if row else None
-                    if scale:
-                        material = scale_to_material.get(scale)
-                        if material:
-                            flat_key = f"Dead_Weight_{material}"
-                            flat_data[flat_key] = item["Dead_Weight"]
+                # Read scale if not in input
+                scale = item.get("Scales")
+                if not scale:
+                    cursor.execute("SELECT Scales FROM product_settings WHERE ID = %s", (item["ID"],))
+                    row = cursor.fetchone()
+                    scale = row["Scales"] if row else None
 
-                # Fill_time
-                if "Fill_time" in item:
-                    scale = item.get("Scales")
-                    if not scale:
-                        cursor.execute("SELECT Scales FROM product_settings WHERE ID = %s", (item["ID"],))
-                        row = cursor.fetchone()
-                        scale = row["Scales"] if row else None
-                    if scale:
-                        material = scale_to_material.get(scale)
-                        if material:
-                            flat_key = f"Filling_Time_{material}"
-                            flat_data[flat_key] = item["Fill_time"] 
+                if scale:
+                    material = scale_to_material.get(scale)
+                    if material:
+                        if "Dead_Weight" in item:
+                            flat_data[f"Dead_Weight_{material}"] = item["Dead_Weight"]
+                        if "Fill_time" in item:
+                            flat_data[f"Filling_Time_{material}"] = item["Fill_time"]
+                        if "Discharge_Fault" in item:
+                            flat_data[f"{material} DISCHARGE FAULT"] = bool(item["Discharge_Fault"])
+                        if "Loading_Sequence" in item:
+                            flat_data[f"Loading_Sequence_{material}"] = int(item["Loading_Sequence"])
+                        if "Discharge_time" in item:
+                            flat_data[f"Discharge_Time_{material}"] = item["Discharge_time"]
 
-                # Discharge Fault
-                if "Discharge_Fault" in item:
-                    scale = item.get("Scales")
-                    if not scale:
-                        cursor.execute("SELECT Scales FROM product_settings WHERE ID = %s", (item["ID"],))
-                        row = cursor.fetchone()
-                        scale = row["Scales"] if row else None
-                    if scale:
-                        material = scale_to_material.get(scale)
-                        if material:
-                            flat_key = f"{material} DISCHARGE FAULT"
-                            flat_data[flat_key] = bool(item["Discharge_Fault"])
-                                
-                # Loading_Sequence
-                if "Loading_Sequence" in item:
-                    scale = item.get("Scales")
-                    if not scale:
-                        cursor.execute("SELECT Scales FROM product_settings WHERE ID = %s", (item["ID"],))
-                        row = cursor.fetchone()
-                        scale = row["Scales"] if row else None
-                    if scale:
-                        material = scale_to_material.get(scale)
-                        if material:
-                            flat_key = f"Loading_Sequence_{material}"
-                            flat_data[flat_key] = int(item["Loading_Sequence"])
 
         # Update product_container_settings table
         product_container_settings = updates.get("product_container_settings")
@@ -1443,7 +1440,7 @@ def update_product_settings():
 
             for item in product_container_settings:
                 required_keys = {
-                    "ID", "Product_Code", "Defination",
+                    "ID", "Defination",
                     "Large_Jog_Weight", "Large_Jog_Time",
                     "Small_Jog_Time", "Small_Jog_Weight", "Weighting_Mode"
                 }
@@ -1452,7 +1449,6 @@ def update_product_settings():
 
                 cursor.execute("""
                     UPDATE product_container_settings SET
-                        Product_Code = %s,
                         Defination = %s,
                         Large_Jog_Weight = %s,
                         Large_Jog_Time = %s,
@@ -1461,7 +1457,6 @@ def update_product_settings():
                         Weighting_Mode = %s
                     WHERE ID = %s
                 """, (
-                    item["Product_Code"],
                     item["Defination"],
                     float(item["Large_Jog_Weight"]),
                     float(item["Large_Jog_Time"]),
@@ -1475,6 +1470,7 @@ def update_product_settings():
         cursor.close()
         conn.close()
 
+        # Write to PLC
         if flat_data:
             print("[INFO] Writing to PLC:", flat_data)
             success = write_db_values_to_plc(flat_data)
@@ -1488,8 +1484,11 @@ def update_product_settings():
                 "plc_values": plc_readback
             })
 
-        return jsonify({"success": True, "message": "Product settings updated successfully", "plc_values": {}})
-
+        return jsonify({
+            "success": True,
+            "message": "Product settings updated successfully",
+            "plc_values": {}
+        })
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -1588,35 +1587,33 @@ def get_batch_report_by_filters():
         filters = []
         values = []
 
-        if client.lower() != 'all' and client != '':
+        if client.lower() != 'all' and client:
             filters.append("cd.Client_Name = %s")
             values.append(client)
 
-        if truck_number.lower() != 'all' and truck_number != '':
-            filters.append("vd.Vehicle_Number = %s")
+        if truck_number.lower() != 'all' and truck_number:
+            filters.append("tl.Truck_Number = %s")
             values.append(truck_number)
 
-        if mix_name.lower() != 'all' and mix_name != '':
+        if mix_name.lower() != 'all' and mix_name:
             filters.append("so.Mix_Name = %s")
             values.append(mix_name)
 
         if start_time and end_time:
             filters.append("b.DateTime BETWEEN %s AND %s")
-            values.append(start_time)
-            values.append(end_time)
+            values.extend([start_time, end_time])
 
         query = """
             SELECT 
                 b.*,
                 so.Mix_Name,
                 cd.Client_Name,
-                vd.Vehicle_Number,
+                tl.Truck_Number,
                 tl.Transport_DateTime
             FROM batches b
             JOIN sales_order so ON b.SalesOrderID = so.SalesOrderID
             LEFT JOIN client_details cd ON so.Client_ID = cd.Client_ID
             LEFT JOIN transport_log tl ON b.Batch_ID = tl.Batch_ID
-            LEFT JOIN vehicle_details vd ON tl.Truck_ID = vd.Vehicle_ID
         """
 
         if filters:
@@ -1654,9 +1651,11 @@ def get_batch_report_by_filters():
             "success": False,
             "error": str(e)
         }), 500
+
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
+
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Delete Clients Based on the client if given
@@ -2793,10 +2792,10 @@ def update_material_bom():
     try:
         all_data = request.get_json()
         data = all_data.get("updates")
-        material_code = data.get('Material_Code')
+        Product_ID = data.get('Product_ID')
 
-        if not material_code:
-            return jsonify({"success": False, "error": "'Material_Code' is required"}), 400
+        if not Product_ID:
+            return jsonify({"success": False, "error": "'Product_ID' is required"}), 400
 
         # Fields that can be updated
         fields = [
@@ -2827,9 +2826,9 @@ def update_material_bom():
         update_query = f"""
             UPDATE qc_material_bom
             SET {', '.join(update_clauses)}
-            WHERE Material_Code = %s
+            WHERE Product_ID = %s
         """
-        values.append(material_code)
+        values.append(Product_ID)
 
         conn = create_db_connection()
         cursor = conn.cursor()
@@ -2837,14 +2836,15 @@ def update_material_bom():
         conn.commit()
 
         if cursor.rowcount == 0:
-            return jsonify({"success": False, "error": "No matching Material_Code found"}), 404
+            return jsonify({"success": False, "error": "No matching Product_ID found"}), 404
 
         return jsonify({
             "success": True,
-            "message": f"Material BOM updated successfully for Material_Code: {material_code}"
+            "message": f"Material BOM updated successfully for Material_Code: {Product_ID}"
         })
 
     except Exception as e:
+        print(e)
         return jsonify({"success": False, "error": str(e)}), 500
 
     finally:
@@ -3132,4 +3132,293 @@ def normalize_alarm():
     result = update_alarm_datetime(alarm_id, 'Normalise_datetime')
 
     return handle_alarm_response(result, alarm_id, action='normalize')
+
+@frontend.route('/get_data_registers', methods=['GET'])
+def get_data_registers():
+    try:
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        query = "SELECT * FROM data_registers"
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"status": "success", "data": rows}), 200
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Stored as json need to be modified
+
+@frontend.route('/create_order', methods=['POST'])
+def create_order():
+    try:
+        data = request.get_json()
+        sections = data.get('sections')
+
+        if not sections or not isinstance(sections, list):
+            return jsonify({'success': False, 'error': 'Missing or invalid "sections" field'}), 400
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+
+        for section in sections:
+            name = section.get('name')
+            total_bins = section.get('totalBins')
+            bins = section.get('bins')
+
+            if not name or total_bins is None or not bins:
+                continue  # Skip invalid section
+
+            # Insert into order_config
+            cursor.execute("""
+                INSERT INTO order_config (name, totalBins, bins)
+                VALUES (%s, %s, %s)
+            """, (name, total_bins, json.dumps(bins)))
+
+            # Insert into model_selection
+            for bin_item in bins:
+                bin_name = bin_item.get("bin_name")
+                if not bin_name:
+                    continue
+
+                scale_name = f"{name} {bin_name}".strip()
+                mode_type = "AUTOINFLIGHT"
+                correction_type = "BATCH"
+
+                cursor.execute("""
+                    INSERT INTO mode_selection (scale_name, mode_type, correction_type)
+                    VALUES (%s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        mode_type = VALUES(mode_type),
+                        correction_type = VALUES(correction_type)
+                """, (scale_name, mode_type, correction_type))
+
+        conn.commit()
+        return jsonify({'success': True, 'message': 'Order and mode selections created successfully'})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Get All Order
+@frontend.route('/get_all_order', methods=['GET'])
+def get_all_orders():
+    try:
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT id, name, totalBins, bins FROM order_config ORDER BY id ASC")
+        rows = cursor.fetchall()
+
+        # Convert JSON string to actual list
+        for row in rows:
+            row['bins'] = json.loads(row['bins'])
+
+        return jsonify({'success': True, 'data': rows})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# UPDATE Order
+@frontend.route('/update_order', methods=['POST'])
+def update_order():
+    try:
+        data = request.get_json()
+        
+        if not data or 'id' not in data:
+            return jsonify({'success': False, 'error': 'Missing \"id\" in payload'}), 400
+
+        order_id = data['id']
+        name = data.get('name')
+        total_bins = data.get('totalBins')
+        bins = data.get('bins') or data.get('sections')  
+
+        update_fields = []
+        update_values = []
+
+        if name:
+            update_fields.append("name = %s")
+            update_values.append(name)
+
+        if total_bins is not None:
+            update_fields.append("totalBins = %s")
+            update_values.append(total_bins)
+
+        if bins:
+            update_fields.append("bins = %s")
+            update_values.append(json.dumps(bins))
+
+        if not update_fields:
+            return jsonify({'success': False, 'error': 'No fields provided to update'}), 400
+
+        update_values.append(order_id)
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            f"UPDATE order_config SET {', '.join(update_fields)} WHERE id = %s",
+            update_values
+        )
+        conn.commit()
+
+        if name and total_bins is not None:
+            plc_write_result = write_order_config_to_plc(name, total_bins, bins)
+            if not plc_write_result:
+                print(f"[WARNING] Failed to write PLC values for {name}")
+                return jsonify({'success': False, 'error': 'PLC write failed'}), 500
+
+        return jsonify({'success': True, 'message': 'Order updated successfully'})
+
+    except Exception as e:
+        print(f"[ERROR] update_order: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+# DELETE Order
+@frontend.route('/delete_order', methods=['POST'])
+def delete_order():
+    try:
+        data = request.get_json()
+        if not data or 'id' not in data:
+            return jsonify({'success': False, 'error': 'Invalid input. "id" required'}), 400
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM order_config WHERE id = %s", (data['id'],))
+        conn.commit()
+
+        return jsonify({'success': True, 'message': 'Order deleted successfully'})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+# Get Mode Selection
+@frontend.route('/get_mode_selection', methods=['GET'])
+def get_mode_selection():
+    try:
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT id, scale_name, mode_type, correction_type FROM mode_selection")
+        mode_selection_map = {row["scale_name"]: row for row in cursor.fetchall()}
+
+        cursor.execute("SELECT id, name, bins FROM order_config")
+        rows = cursor.fetchall()
+
+        result = []
+
+        for row in rows:
+            section_name = row['name']
+            raw_bins = row['bins']
+            try:
+                bins = json.loads(raw_bins) if raw_bins else []
+            except Exception:
+                bins = []
+
+            for bin in bins:
+                bin_name = bin.get("bin_name", "")
+                scale_name = f"{section_name} {bin_name}".strip()
+
+                mode_row = mode_selection_map.get(scale_name, {})
+                result.append({
+                    "id": mode_row.get("id"), 
+                    "scale_name": scale_name,
+                    "mode_type": mode_row.get("mode_type", "AUTOINFLIGHT"),
+                    "correction_type": mode_row.get("correction_type", "BATCH")
+                })
+
+        return jsonify({"success": True, "data": result})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# Update Mode Selection
+@frontend.route('/update_mode_selection', methods=['POST'])
+def update_mode_selection():
+    try:
+        data = request.get_json()
+        updates = data.get('updates', [])
+
+        if not isinstance(updates, list):
+            return jsonify({"success": False, "error": "'updates' must be a list"}), 400
+
+        conn = create_db_connection()
+        cursor = conn.cursor()
+
+        for item in updates:
+            id_ = item.get("id")
+            mode_type = item.get("mode_type")
+            correction_type = item.get("correction_type")
+
+            if not id_ or not mode_type or not correction_type:
+                print(f"[SKIPPED] Missing fields in item: {item}")
+                continue
+
+            cursor.execute("""
+                UPDATE mode_selection
+                SET mode_type = %s,
+                    correction_type = %s
+                WHERE id = %s
+            """, (mode_type, correction_type, id_))
+
+        conn.commit()
+
+        # Optional PLC update (if required)
+        plc_result = update_plc_mode_registers(updates)
+        if not plc_result:
+            return jsonify({"success": False, "error": "PLC write failed"}), 500
+
+        return jsonify({"success": True, "message": "Mode selection and PLC updated successfully"})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+@frontend.route('/start_production',methods=['POST'])
+def start_production():
+    try:
+        data = request.get_json()
+        if data:
+            pass
+        else:
+            return jsonify({"success": False, "error": "empty data is sent"}), 400
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+

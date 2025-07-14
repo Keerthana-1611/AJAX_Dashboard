@@ -72,6 +72,17 @@ class ModbusSerialReader:
             return result.registers
         except Exception as e:
             raise RuntimeError(f"Serial Holding Register Read Error: {e}")
+    
+    def read_single_holding_register(self, address: int, unit: int = 1):
+        try:
+            result = self.client.read_holding_registers(address=address,count=1,slave=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to read holding register at {address}")
+            value = result.registers[0]
+            return value
+        except Exception as e:
+            raise RuntimeError(f"Serial Holding Register Read Error: {e}")
+
 
     def write_single_holding_registers(self, address: int, value: int = 1, unit: int = 1):
         try:
@@ -112,7 +123,7 @@ class ModbusSerialReader:
     
     def write_float_register(self, address: int, value: float, inverse: bool = False, unit: int = 1):
         try:
-            converted_value = from_float32(value=value,inverse=inverse)
+            converted_value = from_float32(value=float(value),inverse=inverse)
             result = self.client.write_registers(address=address, values=converted_value, slave=unit)
             if result.isError():
                 raise RuntimeError(f"Failed to write float value to holding registers at {address}")
@@ -132,7 +143,7 @@ class ModbusSerialReader:
     
     def write_U32_register(self, address: int, value: int, inverse: bool = False, unit: int = 1):
         try:
-            converted_value = from_uint32(value=value,inverse=inverse)
+            converted_value = from_uint32(value=int(value),inverse=inverse)
             result = self.client.write_registers(address=address, values=converted_value, slave=unit)
             if result.isError():
                 raise RuntimeError(f"Failed to write U32 value to holding registers at {address}")
@@ -152,7 +163,7 @@ class ModbusSerialReader:
     
     def write_I32_register(self, address: int, value: int, inverse: bool = False, unit: int = 1):
         try:
-            converted_value = from_int32(value=value,inverse=inverse)
+            converted_value = from_int32(value=int(value),inverse=inverse)
             result = self.client.write_registers(address=address, values=converted_value, slave=unit)
             if result.isError():
                 raise RuntimeError(f"Failed to write I32 value to holding registers at {address}")

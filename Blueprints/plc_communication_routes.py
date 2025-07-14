@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from modbus_handler import create_modbus_connection,LOADCELL_REGISTER_MAP
+from modbus_handler import create_modbus_connection,LOADCELL_REGISTER_MAP,write_plc_mode,write_truck_present
 from DAQ.Converstion import *
 import os
 import sys
@@ -450,5 +450,37 @@ def write_mix_design():
         words = from_float32(float(value), inverse)
         modbus.write_multiple_holding_registers(37768, words)
         return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e), 'success': False}), 500
+
+@plc_communication.route('/plc_mode',methods=['POST'])
+def plc_mode():
+    data = request.get_json()
+    try:
+        mode = data.get('mode').lower()
+        if mode:
+            if mode in ['auto','manual']:
+                if write_plc_mode(mode):
+                    return jsonify({'success': True})
+                else:
+                    return jsonify({'success': False}),500
+            else:
+                return jsonify({'error': 'unknown mode value given', 'success': False}), 400
+
+        else:
+            return jsonify({'error': 'mode key missing', 'success': False}), 400
+    except Exception as e:
+        return jsonify({'error': str(e), 'success': False}), 500
+
+@plc_communication.route('/truck_present',methods=['POST'])
+def truck_present():
+    data = request.get_json()
+    try:
+        truck_present = data.get('truck_present')
+        if write_truck_present(truck_present):
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False}),500
+
     except Exception as e:
         return jsonify({'error': str(e), 'success': False}), 500

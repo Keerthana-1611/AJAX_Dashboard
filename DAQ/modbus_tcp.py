@@ -63,6 +63,16 @@ class ModbusTCPReader:
         except Exception as e:
             raise RuntimeError(f"TCP Holding Register Single Write Error: {e}")
 
+    def read_single_holding_register(self, address: int, unit: int = 1):
+        try:
+            result = self.client.read_holding_registers(address=address,count=1,unit=unit)
+            if result.isError():
+                raise RuntimeError(f"Failed to read holding register at {address}")
+            value = result.registers[0]
+            return value
+        except Exception as e:
+            raise RuntimeError(f"Serial Holding Register Read Error: {e}")
+
     def write_multiple_holding_registers(self, address: int, value: list, unit: int = 1):
         try:
             result = self.client.write_registers(address=address, values=value, slave=unit)

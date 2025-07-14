@@ -989,6 +989,18 @@
         "value_type": "I32",
         "inverse": false
     },
+    "belt_pre_running_time": {
+        "register_type": "holding_register",
+        "address": 47941,
+        "value_type": "I32",
+        "inverse": false
+    },
+    "top_to_waiting_time": {
+        "register_type": "holding_register",
+        "address": 47942,
+        "value_type": "I32",
+        "inverse": false
+    },
     "MD_AGG BIN 1": {
         "register_type": "holding_register",
         "address": 38768,
@@ -1439,5 +1451,35 @@
         "address": 2894,
         "value_type": "Bool",
         "inverse": "null"
+    },
+    "PLC_MODE": {
+        "register_type": "coil",
+        "address": 47534,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "TRUCK_PRESENT": {
+        "register_type": "coil",
+        "address": 47020,
+        "value_type": "Bool",
+        "inverse": "null"
+    },
+    "mixer_running_time_hours": {
+        "register_type": "holding_register",
+        "address": 37906,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "mixer_running_time_minutes": {
+        "register_type": "holding_register",
+        "address": 37908,
+        "value_type": "U32",
+        "inverse": false
+    },
+    "mixer_running_time_seconds": {
+        "register_type": "holding_register",
+        "address": 37910,
+        "value_type": "U32",
+        "inverse": false
     }
 }

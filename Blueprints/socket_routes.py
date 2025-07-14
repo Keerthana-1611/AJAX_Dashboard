@@ -20,7 +20,7 @@ else:
 
 # Create Blueprint
 socket_communications = Blueprint('socket_communications', __name__)
-socketio = SocketIO(manage_session=False)
+socketio = SocketIO(manage_session=False, cors_allowed_origins='*')
 
 # Client tracking
 client_threads = {}
@@ -95,17 +95,20 @@ def process_alarms(data: dict, user: str = 'Unknown'):
 def alarm_manager(sid, username):
     global ACTIVE_ALARMS
     while client_threads.get(sid, False):
-        data = read_alarm()
-        new_alarms= process_alarms(data, username)
-        # new_alarms = []
+        try:
+            data = read_alarm()
+            new_alarms= process_alarms(data, username)
+            # new_alarms = []
+        
+            if new_alarms:
+                socketio.emit('alarm_data', {
+                    "new_alarms": new_alarms
+                }, to=sid, namespace='/alarm_events')
+
+            # socketio.sleep(0.2)
+        except Exception as e:
+            break
     
-        if new_alarms:
-            socketio.emit('alarm_data', {
-                "new_alarms": new_alarms
-            }, to=sid, namespace='/alarm_events')
-
-        # socketio.sleep(0.2)
-
     print(f"🛑 Alarm thread stopped for {sid}")
 
 @socketio.on('connect', namespace='/alarm_events')
@@ -115,7 +118,6 @@ def handle_plc_connect():
     print(f"✅ Alarm thread Client connected: {sid}")
     client_threads[sid] = True
     socketio.start_background_task(alarm_manager, sid,username)
-
 
 @socketio.on('disconnect', namespace='/alarm_events')
 def handle_plc_disconnect():
