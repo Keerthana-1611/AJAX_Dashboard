@@ -1211,6 +1211,83 @@ def save_update_mix_design_bom():
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
 
+@frontend.route('/get_mix_design_bom_by_code', methods=['GET'])
+def get_mix_design_bom_by_code():
+    try:
+        mix_code = request.args.get('code')
+
+        if not mix_code:
+            return jsonify({"success": False, "error": "Mix Design code is required as 'code' query parameter."}), 400
+
+        conn = create_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Fetch mix design by code
+        cursor.execute("SELECT * FROM mix_design WHERE code = %s", (mix_code,))
+        mix_design = cursor.fetchone()
+
+        if not mix_design:
+            return jsonify({"success": False, "error": f"Mix Design with code '{mix_code}' not found."}), 404
+
+        mix_id = mix_design['id']
+
+        # Get all materials with BOM defaults from qc_material_bom
+        cursor.execute("""
+            SELECT 
+                m.Material_Code,
+                m.Material_Name,
+                m.Short_Name,
+                m.Description,
+                m.Scale_Type,
+                m.UOM,
+                b.Offset_Value,
+                b.Max_Absorption,
+                b.Max_Surface,
+                b.Coarse_Feed_Associate,
+                b.Max_Value AS Default_Max_Value,
+                b.Tolerance,
+                b.Bin_Number,
+                b.Batch_Sequence,
+                b.Action,
+                b.Short_Code
+            FROM qc_materials m
+            LEFT JOIN qc_material_bom b ON m.Material_Code = b.Material_Code
+        """)
+        all_materials = cursor.fetchall()
+
+        # Get actual max values (Value) from mix_design_bom for the given mix
+        cursor.execute("""
+            SELECT Material_Code, Value 
+            FROM mix_design_bom 
+            WHERE Mix_Design_ID = %s
+        """, (mix_id,))
+        bom_entries = cursor.fetchall()
+
+        bom_map = {entry['Material_Code']: entry['Value'] for entry in bom_entries}
+
+        # Combine materials with overridden Max_Value
+        bom_list = []
+        for mat in all_materials:
+            material_code = mat['Material_Code']
+            material_with_value = dict(mat)
+            # Override Max_Value with mix-specific value (if available)
+            material_with_value['Max_Value'] = bom_map.get(material_code, 0)
+            bom_list.append(material_with_value)
+
+        return jsonify({
+            "success": True,
+            "mix_code": mix_code,
+            "mix_id": mix_id,
+            "bom": bom_list
+        })
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
 
 
 #Allow you to delete multiple Mix Designs

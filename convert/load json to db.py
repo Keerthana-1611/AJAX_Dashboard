@@ -21,17 +21,18 @@ cursor = conn.cursor()
 
 # Insert data
 insert_query = """
-    INSERT INTO data_registers (reg_name, reg_type, address, inverse)
-    VALUES (%s, %s, %s, %s)
+    INSERT INTO data_registers (reg_name, reg_type, address, inverse,value_type)
+    VALUES (%s, %s, %s, %s,%s)
 """
 
 for reg_name, details in json_data.items():
     reg_type = details.get("register_type", "")
     address = details.get("address", 0)
+    value_type = details.get('value_type')
     inverse = details.get("inverse")
     if inverse == "null":
         inverse = False  # Treat null as False
-    cursor.execute(insert_query, (reg_name, reg_type, address, int(inverse)))
+    cursor.execute(insert_query, (reg_name, reg_type, address, int(inverse),value_type))
 
 # Commit and close
 conn.commit()
